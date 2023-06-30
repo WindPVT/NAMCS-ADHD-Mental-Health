@@ -25,7 +25,8 @@ raw_data_2009 <- read.csv("Raw_Data/namcs2009.csv")
 
 #2019
 peds_data_2019 <- raw_data_2019 %>% 
-  filter(AGE <= 18) %>% 
+  filter(AGE <= 18) %>%
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,DIAG4,DIAG5,                                     # Diagnoses
@@ -39,6 +40,7 @@ peds_data_2019 <- raw_data_2019 %>%
 #2018
 peds_data_2018 <- raw_data_2018 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,DIAG4,DIAG5,                                     # Diagnoses
@@ -52,6 +54,7 @@ peds_data_2018 <- raw_data_2018 %>%
 #2016
 peds_data_2016 <- raw_data_2016 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,DIAG4,DIAG5,                                     # Diagnoses
@@ -65,6 +68,7 @@ peds_data_2016 <- raw_data_2016 %>%
 #2015
 peds_data_2015 <- raw_data_2015 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,DIAG4,DIAG5,                                     # Diagnoses
@@ -78,6 +82,7 @@ peds_data_2015 <- raw_data_2015 %>%
 #2014
 peds_data_2014 <- raw_data_2014 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,DIAG4,DIAG5,                                     # Diagnoses
@@ -91,6 +96,7 @@ peds_data_2014 <- raw_data_2014 %>%
 #2013
 peds_data_2013 <- raw_data_2013 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,                                                 # Diagnoses
@@ -104,6 +110,7 @@ peds_data_2013 <- raw_data_2013 %>%
 #2012
 peds_data_2012 <- raw_data_2012 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,                                                 # Diagnoses
@@ -117,6 +124,7 @@ peds_data_2012 <- raw_data_2012 %>%
 #2011
 peds_data_2011 <- raw_data_2011 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,                                                 # Diagnoses
@@ -130,6 +138,7 @@ peds_data_2011 <- raw_data_2011 %>%
 #2010
 peds_data_2010 <- raw_data_2010 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,                                                 # Diagnoses
@@ -143,6 +152,7 @@ peds_data_2010 <- raw_data_2010 %>%
 #2009
 peds_data_2009 <- raw_data_2009 %>% 
   filter(AGE <= 18) %>% 
+  filter(AGE >=5) %>% 
   select(AGE, RACERETH, SEX, MSA, PAYTYPER,                                 # Demographic characteristics
          MAJOR, RFV1,                                                       # Reason for Visit
          DIAG1,DIAG2,DIAG3,                                                 # Diagnoses
@@ -322,6 +332,15 @@ ADHD_Rx_By1 <- function(characteristic) {
     summarise(n=n())
   colnames(ADHD_visits_by) <- c(characteristic, "ADHD_VISITS")
   
+  any_rx_by <- ADHD_dataset %>% 
+    filter(ANY_ADHD_MED == 1) %>% 
+    mutate(CLASS = "ANY") %>% 
+    group_by(!!as.name(characteristic),CLASS) %>% 
+    summarise(n=n())
+  colnames(any_rx_by) <- c(characteristic, "CLASS", "RX")
+  any_rx_by <- merge(any_rx_by,ADHD_visits_by,all=TRUE) %>% 
+    mutate(PROP = RX/ADHD_VISITS*100)
+  
   stim_rx_by <- ADHD_dataset %>% 
     filter(STIMULANT == 1) %>% 
     filter(is.na(NON_STIM)) %>% 
@@ -351,13 +370,13 @@ ADHD_Rx_By1 <- function(characteristic) {
   both_rx_by <- merge(both_rx_by,ADHD_visits_by,all=TRUE) %>% 
     mutate(PROP = RX/ADHD_VISITS*100)
   
-  prop_ADHD_visits_rx_by <- rbind(stim_rx_by,non_stim_rx_by,both_rx_by)
+  prop_ADHD_visits_rx_by <- rbind(stim_rx_by,non_stim_rx_by,both_rx_by,any_rx_by)
   prop_ADHD_visits_rx_by
   
 }
 
 # line graph of ADHD medication prescribing by year
-ADHD_rx_by_year <- ADHD_Rx_By1("YEAR")
+ADHD_rx_by_year <- ADHD_Rx_By1("YEAR") 
 ggplot(ADHD_rx_by_year, aes(x=YEAR,y=PROP,colour=CLASS)) +
   geom_line(lwd = 1.5) +
   geom_point(size = 2.5) +
@@ -365,32 +384,38 @@ ggplot(ADHD_rx_by_year, aes(x=YEAR,y=PROP,colour=CLASS)) +
   labs(x="YEAR", y="PERCENTAGE OF ADHD VISITS")
 
 # stacked bar graph of ADHD medication prescribing by sex
-ADHD_rx_by_sex <- ADHD_Rx_By1("SEX")
+ADHD_rx_by_sex <- ADHD_Rx_By1("SEX") %>% 
+  filter(CLASS != "ANY")
 ggplot(ADHD_rx_by_sex, aes(x=SEX,y=PROP,fill=CLASS)) +
   geom_bar(position = "stack", stat = "identity")
 
 # stacked bar graph of ADHD medication prescribing by race/ethnicity
-ADHD_rx_by_racereth <- ADHD_Rx_By1("RACERETH")
+ADHD_rx_by_racereth <- ADHD_Rx_By1("RACERETH") %>% 
+  filter(CLASS != "ANY")
 ggplot(ADHD_rx_by_racereth, aes(x=RACERETH,y=PROP,fill=CLASS)) +
   geom_bar(position = "stack", stat = "identity")
 
 # stacked bar graph of ADHD medication prescribing by MSA
-ADHD_rx_by_MSA <- ADHD_Rx_By1("MSA")
+ADHD_rx_by_MSA <- ADHD_Rx_By1("MSA") %>% 
+  filter(CLASS != "ANY")
 ggplot(ADHD_rx_by_MSA, aes(x=MSA,y=PROP,fill=CLASS)) +
   geom_bar(position = "stack", stat = "identity")
 
 # stacked bar graph of ADHD medication prescribing by payer
-ADHD_rx_by_paytyper <- ADHD_Rx_By1("PAYTYPER")
+ADHD_rx_by_paytyper <- ADHD_Rx_By1("PAYTYPER") %>% 
+  filter(CLASS != "ANY")
 ggplot(ADHD_rx_by_paytyper, aes(x=PAYTYPER,y=PROP,fill=CLASS)) +
   geom_bar(position = "stack", stat = "identity")
 
 # stacked bar graph of ADHD medication prescribing by age
-ADHD_rx_by_age <- ADHD_Rx_By1("AGE")
+ADHD_rx_by_age <- ADHD_Rx_By1("AGE") %>% 
+  filter(CLASS != "ANY")
 ggplot(ADHD_rx_by_age, aes(x=AGE,y=PROP,fill=CLASS)) +
   geom_bar(position = "stack", stat = "identity")
 
 #  stacked bar graph of ADHD medication prescribing by primary care (y/n)
-ADHD_rx_by_primcare <- ADHD_Rx_By1("PRIMCARE")
+ADHD_rx_by_primcare <- ADHD_Rx_By1("PRIMCARE") %>% 
+  filter(CLASS != "ANY")
 ggplot(ADHD_rx_by_primcare, aes(x=PRIMCARE,y=PROP,fill=CLASS)) +
   geom_bar(position = "stack", stat = "identity")
 
