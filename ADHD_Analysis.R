@@ -419,6 +419,54 @@ ADHD_rx_by_primcare <- ADHD_Rx_By1("PRIMCARE") %>%
 ggplot(ADHD_rx_by_primcare, aes(x=PRIMCARE,y=PROP,fill=CLASS)) +
   geom_bar(position = "stack", stat = "identity")
 
-ADHD_dataset %>% 
-  group_by(AGE) %>% 
+#### GRAPH ADHD VISITS AND PRESCRIBING AS A PERCENTAGE OF ALL VISITS ####
+
+all_visits_yearly <- peds_data_combined %>% 
+  group_by(YEAR) %>% 
+  summarise(n=n()) 
+colnames(all_visits_yearly) <- c("YEAR", "ALL_VISITS")
+
+adhd_visits_yearly <- peds_data_combined %>% 
+  filter(ADHD == 1) %>% 
+  mutate(CLASS = "ADHD_DX") %>% 
+  group_by(YEAR,CLASS) %>% 
   summarise(n=n())
+colnames(adhd_visits_yearly) <- c("YEAR","CLASS","RX")
+adhd_visits_yearly <- merge(adhd_visits_yearly,all_visits_yearly,all=TRUE) %>% 
+  mutate(PROP = RX/ALL_VISITS*100)
+
+all_stim_yearly <- peds_data_combined %>% 
+  filter(STIMULANT == 1) %>% 
+  mutate(CLASS = "STIM_RX") %>% 
+  group_by(YEAR,CLASS) %>% 
+  summarise(n=n())
+colnames(all_stim_yearly) <- c("YEAR","CLASS","RX")
+all_stim_yearly <- merge(all_stim_yearly,all_visits_yearly,all=TRUE) %>% 
+  mutate(PROP = RX/ALL_VISITS*100)
+
+all_non_stim_yearly <- peds_data_combined %>% 
+  filter(NON_STIM == 1) %>% 
+  mutate(CLASS = "NON_STIM_RX") %>% 
+  group_by(YEAR,CLASS) %>% 
+  summarise(n=n())
+colnames(all_non_stim_yearly) <- c("YEAR","CLASS","RX")
+all_non_stim_yearly <- merge(all_non_stim_yearly,all_visits_yearly,all=TRUE) %>% 
+  mutate(PROP = RX/ALL_VISITS*100)
+
+all_both_yearly <- peds_data_combined %>% 
+  filter(BOTH == 1) %>% 
+  mutate(CLASS = "BOTH") %>% 
+  group_by(YEAR,CLASS) %>% 
+  summarise(n=n())
+colnames(all_both_yearly) <- c("YEAR","CLASS","RX")
+all_both_yearly <- merge(all_both_yearly,all_visits_yearly,all=TRUE) %>% 
+  mutate(PROP = RX/ALL_VISITS*100)
+
+yearly_rx_and_dx <- rbind(adhd_visits_yearly,all_stim_yearly,all_non_stim_yearly)
+
+ggplot(yearly_rx_and_dx, aes(x=YEAR,y=PROP,colour=CLASS)) +
+  geom_line(lwd = 1.5) +
+  geom_point(size = 2.5) +
+  scale_x_continuous(breaks = c(2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019)) +
+  labs(x="YEAR", y="PERCENTAGE OF ALL VISITS")
+
