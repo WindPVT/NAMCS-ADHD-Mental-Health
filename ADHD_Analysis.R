@@ -244,21 +244,21 @@ ADHD_non_stimulant_codes <- c("d00259", #imipramine
 
 #add yes/no variables for ADHD diagnosis, stimulant prescription,  non-stimulant prescription, and both stimulant and non-stimulant prescription
 data_combined <- data_combined %>% 
-  mutate(ADHD = case_when(DIAG1 %in% ADHD_ICD_codes | DIAG2 %in% ADHD_ICD_codes | DIAG3 %in% ADHD_ICD_codes | DIAG4 %in% ADHD_ICD_codes | DIAG5 %in% ADHD_ICD_codes ~"Y",
-         .default = "N")) %>% 
+  mutate(ADHD = case_when(DIAG1 %in% ADHD_ICD_codes | DIAG2 %in% ADHD_ICD_codes | DIAG3 %in% ADHD_ICD_codes | DIAG4 %in% ADHD_ICD_codes | DIAG5 %in% ADHD_ICD_codes ~1,
+         .default = 0)) %>% 
   mutate(STIMULANT = case_when((RX1CAT1 %in% ADHD_stimulant_codes | RX2CAT1 %in% ADHD_stimulant_codes | RX3CAT1 %in% ADHD_stimulant_codes | RX4CAT1 %in% ADHD_stimulant_codes | RX5CAT1 %in% ADHD_stimulant_codes | RX6CAT1 %in% ADHD_stimulant_codes | RX7CAT1 %in% ADHD_stimulant_codes | RX8CAT1 %in% ADHD_stimulant_codes | RX9CAT1 %in% ADHD_stimulant_codes | RX10CAT1 %in% ADHD_stimulant_codes | RX11CAT1 %in% ADHD_stimulant_codes | RX12CAT1 %in% ADHD_stimulant_codes | RX13CAT1 %in% ADHD_stimulant_codes | RX14CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX16CAT1 %in% ADHD_stimulant_codes | RX17CAT1 %in% ADHD_stimulant_codes | RX18CAT1 %in% ADHD_stimulant_codes | RX19CAT1 %in% ADHD_stimulant_codes | RX20CAT1 %in% ADHD_stimulant_codes | RX21CAT1 %in% ADHD_stimulant_codes | RX22CAT1 %in% ADHD_stimulant_codes | RX23CAT1 %in% ADHD_stimulant_codes | RX24CAT1 %in% ADHD_stimulant_codes | RX25CAT1 %in% ADHD_stimulant_codes | RX26CAT1 %in% ADHD_stimulant_codes | RX27CAT1 %in% ADHD_stimulant_codes | RX28CAT1 %in% ADHD_stimulant_codes | RX29CAT1 %in% ADHD_stimulant_codes | RX30CAT1 %in% ADHD_stimulant_codes |  
                                 RX1CAT2 %in% ADHD_stimulant_codes | RX2CAT2 %in% ADHD_stimulant_codes | RX3CAT2 %in% ADHD_stimulant_codes | RX4CAT2 %in% ADHD_stimulant_codes | RX5CAT2 %in% ADHD_stimulant_codes | RX6CAT2 %in% ADHD_stimulant_codes | RX7CAT2 %in% ADHD_stimulant_codes | RX8CAT2 %in% ADHD_stimulant_codes | RX9CAT2 %in% ADHD_stimulant_codes | RX10CAT2 %in% ADHD_stimulant_codes | RX11CAT2 %in% ADHD_stimulant_codes | RX12CAT2 %in% ADHD_stimulant_codes | RX13CAT2 %in% ADHD_stimulant_codes | RX14CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX16CAT2 %in% ADHD_stimulant_codes | RX17CAT2 %in% ADHD_stimulant_codes | RX18CAT2 %in% ADHD_stimulant_codes | RX19CAT2 %in% ADHD_stimulant_codes | RX20CAT2 %in% ADHD_stimulant_codes | RX21CAT2 %in% ADHD_stimulant_codes | RX22CAT2 %in% ADHD_stimulant_codes | RX23CAT2 %in% ADHD_stimulant_codes | RX24CAT2 %in% ADHD_stimulant_codes | RX25CAT2 %in% ADHD_stimulant_codes | RX26CAT2 %in% ADHD_stimulant_codes | RX27CAT2 %in% ADHD_stimulant_codes | RX28CAT2 %in% ADHD_stimulant_codes | RX29CAT2 %in% ADHD_stimulant_codes | RX30CAT2) 
-                               & !(DRUGID1 %in% ADHD_non_stimulant_codes | DRUGID2 %in% ADHD_non_stimulant_codes | DRUGID3 %in% ADHD_non_stimulant_codes | DRUGID4 %in% ADHD_non_stimulant_codes | DRUGID5 %in% ADHD_non_stimulant_codes | DRUGID6 %in% ADHD_non_stimulant_codes | DRUGID7 %in% ADHD_non_stimulant_codes | DRUGID8 %in% ADHD_non_stimulant_codes | DRUGID9 %in% ADHD_non_stimulant_codes | DRUGID10 %in% ADHD_non_stimulant_codes | DRUGID11 %in% ADHD_non_stimulant_codes | DRUGID12 %in% ADHD_non_stimulant_codes | DRUGID13 %in% ADHD_non_stimulant_codes | DRUGID14 %in% ADHD_non_stimulant_codes | DRUGID15 %in% ADHD_non_stimulant_codes | DRUGID16 %in% ADHD_non_stimulant_codes | DRUGID17 %in% ADHD_non_stimulant_codes | DRUGID18 %in% ADHD_non_stimulant_codes | DRUGID19 %in% ADHD_non_stimulant_codes | DRUGID20 %in% ADHD_non_stimulant_codes | DRUGID21 %in% ADHD_non_stimulant_codes | DRUGID22 %in% ADHD_non_stimulant_codes | DRUGID23 %in% ADHD_non_stimulant_codes | DRUGID24 %in% ADHD_non_stimulant_codes | DRUGID25 %in% ADHD_non_stimulant_codes | DRUGID26 %in% ADHD_non_stimulant_codes | DRUGID27 %in% ADHD_non_stimulant_codes | DRUGID28 %in% ADHD_non_stimulant_codes | DRUGID29 %in% ADHD_non_stimulant_codes | DRUGID30 %in% ADHD_non_stimulant_codes) ~"Y",
-                               .default = "N")) %>%  
+                               & !(DRUGID1 %in% ADHD_non_stimulant_codes | DRUGID2 %in% ADHD_non_stimulant_codes | DRUGID3 %in% ADHD_non_stimulant_codes | DRUGID4 %in% ADHD_non_stimulant_codes | DRUGID5 %in% ADHD_non_stimulant_codes | DRUGID6 %in% ADHD_non_stimulant_codes | DRUGID7 %in% ADHD_non_stimulant_codes | DRUGID8 %in% ADHD_non_stimulant_codes | DRUGID9 %in% ADHD_non_stimulant_codes | DRUGID10 %in% ADHD_non_stimulant_codes | DRUGID11 %in% ADHD_non_stimulant_codes | DRUGID12 %in% ADHD_non_stimulant_codes | DRUGID13 %in% ADHD_non_stimulant_codes | DRUGID14 %in% ADHD_non_stimulant_codes | DRUGID15 %in% ADHD_non_stimulant_codes | DRUGID16 %in% ADHD_non_stimulant_codes | DRUGID17 %in% ADHD_non_stimulant_codes | DRUGID18 %in% ADHD_non_stimulant_codes | DRUGID19 %in% ADHD_non_stimulant_codes | DRUGID20 %in% ADHD_non_stimulant_codes | DRUGID21 %in% ADHD_non_stimulant_codes | DRUGID22 %in% ADHD_non_stimulant_codes | DRUGID23 %in% ADHD_non_stimulant_codes | DRUGID24 %in% ADHD_non_stimulant_codes | DRUGID25 %in% ADHD_non_stimulant_codes | DRUGID26 %in% ADHD_non_stimulant_codes | DRUGID27 %in% ADHD_non_stimulant_codes | DRUGID28 %in% ADHD_non_stimulant_codes | DRUGID29 %in% ADHD_non_stimulant_codes | DRUGID30 %in% ADHD_non_stimulant_codes) ~1,
+                               .default = 0)) %>%  
   mutate(NON_STIM = case_when((DRUGID1 %in% ADHD_non_stimulant_codes | DRUGID2 %in% ADHD_non_stimulant_codes | DRUGID3 %in% ADHD_non_stimulant_codes | DRUGID4 %in% ADHD_non_stimulant_codes | DRUGID5 %in% ADHD_non_stimulant_codes | DRUGID6 %in% ADHD_non_stimulant_codes | DRUGID7 %in% ADHD_non_stimulant_codes | DRUGID8 %in% ADHD_non_stimulant_codes | DRUGID9 %in% ADHD_non_stimulant_codes | DRUGID10 %in% ADHD_non_stimulant_codes | DRUGID11 %in% ADHD_non_stimulant_codes | DRUGID12 %in% ADHD_non_stimulant_codes | DRUGID13 %in% ADHD_non_stimulant_codes | DRUGID14 %in% ADHD_non_stimulant_codes | DRUGID15 %in% ADHD_non_stimulant_codes | DRUGID16 %in% ADHD_non_stimulant_codes | DRUGID17 %in% ADHD_non_stimulant_codes | DRUGID18 %in% ADHD_non_stimulant_codes | DRUGID19 %in% ADHD_non_stimulant_codes | DRUGID20 %in% ADHD_non_stimulant_codes | DRUGID21 %in% ADHD_non_stimulant_codes | DRUGID22 %in% ADHD_non_stimulant_codes | DRUGID23 %in% ADHD_non_stimulant_codes | DRUGID24 %in% ADHD_non_stimulant_codes | DRUGID25 %in% ADHD_non_stimulant_codes | DRUGID26 %in% ADHD_non_stimulant_codes | DRUGID27 %in% ADHD_non_stimulant_codes | DRUGID28 %in% ADHD_non_stimulant_codes | DRUGID29 %in% ADHD_non_stimulant_codes | DRUGID30 %in% ADHD_non_stimulant_codes)
-                              & (STIMULANT == "N") ~"Y",
-                              .default = "N")) %>% 
+                              & (STIMULANT == 0) ~1,
+                              .default = 0)) %>% 
   mutate(BOTH = case_when((RX1CAT1 %in% ADHD_stimulant_codes | RX2CAT1 %in% ADHD_stimulant_codes | RX3CAT1 %in% ADHD_stimulant_codes | RX4CAT1 %in% ADHD_stimulant_codes | RX5CAT1 %in% ADHD_stimulant_codes | RX6CAT1 %in% ADHD_stimulant_codes | RX7CAT1 %in% ADHD_stimulant_codes | RX8CAT1 %in% ADHD_stimulant_codes | RX9CAT1 %in% ADHD_stimulant_codes | RX10CAT1 %in% ADHD_stimulant_codes | RX11CAT1 %in% ADHD_stimulant_codes | RX12CAT1 %in% ADHD_stimulant_codes | RX13CAT1 %in% ADHD_stimulant_codes | RX14CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX16CAT1 %in% ADHD_stimulant_codes | RX17CAT1 %in% ADHD_stimulant_codes | RX18CAT1 %in% ADHD_stimulant_codes | RX19CAT1 %in% ADHD_stimulant_codes | RX20CAT1 %in% ADHD_stimulant_codes | RX21CAT1 %in% ADHD_stimulant_codes | RX22CAT1 %in% ADHD_stimulant_codes | RX23CAT1 %in% ADHD_stimulant_codes | RX24CAT1 %in% ADHD_stimulant_codes | RX25CAT1 %in% ADHD_stimulant_codes | RX26CAT1 %in% ADHD_stimulant_codes | RX27CAT1 %in% ADHD_stimulant_codes | RX28CAT1 %in% ADHD_stimulant_codes | RX29CAT1 %in% ADHD_stimulant_codes | RX30CAT1 %in% ADHD_stimulant_codes |  
                              RX1CAT2 %in% ADHD_stimulant_codes | RX2CAT2 %in% ADHD_stimulant_codes | RX3CAT2 %in% ADHD_stimulant_codes | RX4CAT2 %in% ADHD_stimulant_codes | RX5CAT2 %in% ADHD_stimulant_codes | RX6CAT2 %in% ADHD_stimulant_codes | RX7CAT2 %in% ADHD_stimulant_codes | RX8CAT2 %in% ADHD_stimulant_codes | RX9CAT2 %in% ADHD_stimulant_codes | RX10CAT2 %in% ADHD_stimulant_codes | RX11CAT2 %in% ADHD_stimulant_codes | RX12CAT2 %in% ADHD_stimulant_codes | RX13CAT2 %in% ADHD_stimulant_codes | RX14CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX16CAT2 %in% ADHD_stimulant_codes | RX17CAT2 %in% ADHD_stimulant_codes | RX18CAT2 %in% ADHD_stimulant_codes | RX19CAT2 %in% ADHD_stimulant_codes | RX20CAT2 %in% ADHD_stimulant_codes | RX21CAT2 %in% ADHD_stimulant_codes | RX22CAT2 %in% ADHD_stimulant_codes | RX23CAT2 %in% ADHD_stimulant_codes | RX24CAT2 %in% ADHD_stimulant_codes | RX25CAT2 %in% ADHD_stimulant_codes | RX26CAT2 %in% ADHD_stimulant_codes | RX27CAT2 %in% ADHD_stimulant_codes | RX28CAT2 %in% ADHD_stimulant_codes | RX29CAT2 %in% ADHD_stimulant_codes | RX30CAT2) 
-                          & (DRUGID1 %in% ADHD_non_stimulant_codes | DRUGID2 %in% ADHD_non_stimulant_codes | DRUGID3 %in% ADHD_non_stimulant_codes | DRUGID4 %in% ADHD_non_stimulant_codes | DRUGID5 %in% ADHD_non_stimulant_codes | DRUGID6 %in% ADHD_non_stimulant_codes | DRUGID7 %in% ADHD_non_stimulant_codes | DRUGID8 %in% ADHD_non_stimulant_codes | DRUGID9 %in% ADHD_non_stimulant_codes | DRUGID10 %in% ADHD_non_stimulant_codes | DRUGID11 %in% ADHD_non_stimulant_codes | DRUGID12 %in% ADHD_non_stimulant_codes | DRUGID13 %in% ADHD_non_stimulant_codes | DRUGID14 %in% ADHD_non_stimulant_codes | DRUGID15 %in% ADHD_non_stimulant_codes | DRUGID16 %in% ADHD_non_stimulant_codes | DRUGID17 %in% ADHD_non_stimulant_codes | DRUGID18 %in% ADHD_non_stimulant_codes | DRUGID19 %in% ADHD_non_stimulant_codes | DRUGID20 %in% ADHD_non_stimulant_codes | DRUGID21 %in% ADHD_non_stimulant_codes | DRUGID22 %in% ADHD_non_stimulant_codes | DRUGID23 %in% ADHD_non_stimulant_codes | DRUGID24 %in% ADHD_non_stimulant_codes | DRUGID25 %in% ADHD_non_stimulant_codes | DRUGID26 %in% ADHD_non_stimulant_codes | DRUGID27 %in% ADHD_non_stimulant_codes | DRUGID28 %in% ADHD_non_stimulant_codes | DRUGID29 %in% ADHD_non_stimulant_codes | DRUGID30 %in% ADHD_non_stimulant_codes) ~"Y",
-                          .default = "N")) %>% 
-  mutate(ANY_ADHD_MED = case_when((STIMULANT == "Y" | NON_STIM == "Y" | BOTH == "Y") ~"Y",
-                                  .default = "N"))
+                          & (DRUGID1 %in% ADHD_non_stimulant_codes | DRUGID2 %in% ADHD_non_stimulant_codes | DRUGID3 %in% ADHD_non_stimulant_codes | DRUGID4 %in% ADHD_non_stimulant_codes | DRUGID5 %in% ADHD_non_stimulant_codes | DRUGID6 %in% ADHD_non_stimulant_codes | DRUGID7 %in% ADHD_non_stimulant_codes | DRUGID8 %in% ADHD_non_stimulant_codes | DRUGID9 %in% ADHD_non_stimulant_codes | DRUGID10 %in% ADHD_non_stimulant_codes | DRUGID11 %in% ADHD_non_stimulant_codes | DRUGID12 %in% ADHD_non_stimulant_codes | DRUGID13 %in% ADHD_non_stimulant_codes | DRUGID14 %in% ADHD_non_stimulant_codes | DRUGID15 %in% ADHD_non_stimulant_codes | DRUGID16 %in% ADHD_non_stimulant_codes | DRUGID17 %in% ADHD_non_stimulant_codes | DRUGID18 %in% ADHD_non_stimulant_codes | DRUGID19 %in% ADHD_non_stimulant_codes | DRUGID20 %in% ADHD_non_stimulant_codes | DRUGID21 %in% ADHD_non_stimulant_codes | DRUGID22 %in% ADHD_non_stimulant_codes | DRUGID23 %in% ADHD_non_stimulant_codes | DRUGID24 %in% ADHD_non_stimulant_codes | DRUGID25 %in% ADHD_non_stimulant_codes | DRUGID26 %in% ADHD_non_stimulant_codes | DRUGID27 %in% ADHD_non_stimulant_codes | DRUGID28 %in% ADHD_non_stimulant_codes | DRUGID29 %in% ADHD_non_stimulant_codes | DRUGID30 %in% ADHD_non_stimulant_codes) ~1,
+                          .default = 0)) %>% 
+  mutate(ANY_ADHD_MED = case_when((STIMULANT == 1 | NON_STIM == 1 | BOTH == 1) ~1,
+                                  .default = 0)) 
 
 
 #### APPLY WEIGHTING ####
@@ -269,7 +269,7 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
 #### CREATE FILTERED DATABASES ####
 
 age_lim_weighted <-subset(weighting_design_namcs,(AGE>=5 & AGE<65))
-ADHD_weighted <- subset(age_lim_weighted,ADHD=="Y")
+ADHD_weighted <- subset(age_lim_weighted,ADHD==1)
 
 #### CREATE AN OVERALL COHORT SUMMARY TABLE ####
 
@@ -284,6 +284,7 @@ svytable(~MAJOR, design=age_lim_weighted)
 #### NUMBER OF VISITS WITH AN ADHD DIAGNOSIS, BY SELECTED CHARACTERISTICS ####
 
 adhd_by_sex <- svyby(~ADHD, ~SEX, age_lim_weighted, na=TRUE, svytotal)
+adhd_by_sex
 ggplot(adhd_by_sex, aes(x=SEX, y=ADHDY))+
   geom_bar(stat="identity")
 
@@ -305,11 +306,14 @@ ggplot(adhd_by_age, aes(x=AGE_GROUPED, y=ADHDY))+
 
 adhd_by_year <- svyby(~ADHD, ~YEAR+AGE_GROUPED, age_lim_weighted, na=TRUE, svymean) 
 adhd_by_year <- cbind(adhd_by_year, confint(adhd_by_year)[21:40,])
-colnames(adhd_by_year) <- c("YEAR", "AGE", "ADHDY", "ADHDN", "seN", "seY", "LOWER_CI", "UPPER_CI")
-ggplot(adhd_by_year, aes(x=YEAR, y=ADHDY))+
-  geom_line(aes(color=AGE))+
-  geom_point(aes(color=AGE))+
-  geom_errorbar(aes(ymin=LOWER_CI,ymax=UPPER_CI))+
+colnames(adhd_by_year) <- c("YEAR", "AGE", "ADHDN", "ADHDY", "seN", "seY", "LOWER_CI", "UPPER_CI")
+
+adhd_by_year
+
+ggplot(adhd_by_year, aes(x=YEAR, y=ADHDY, color = AGE))+
+  geom_line()+
+  geom_point()+
+  geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = AGE), alpha=0.2)+
   labs(title = "Proportion of Total Visits with an ADHD Diagnosis, by Age Group", y = "Proportion of Total Visits With an ADHD Diagnosis Code", x = "Year")
 
 
@@ -342,7 +346,7 @@ ggplot(data=yearly_rx, aes(x=YEAR, y=Y, color = CLASS)) +
   geom_point() +
   geom_ribbon(aes(ymin=LOWER_CI, ymax=UPPER_CI, fill = CLASS), 
                alpha=0.2) +
-  labs(title = "ADHD Prescribing Among 5-18 yos", x = "Year", y = "% of ADHD Visits with Medication Prescribed")
+  labs(title = "ADHD Prescribing Among 18-65 yos", x = "Year", y = "% of ADHD Visits with Medication Prescribed")
   
 
 
@@ -367,6 +371,15 @@ ggplot(data=any_by_paytyper, aes(x=PAYTYPER,y=Y))+
   geom_bar(stat="identity")+
   geom_point()+
   geom_errorbar(aes(ymin=LOWER_CI,ymax=UPPER_CI),width=0.5)
+
+
+
+summary(svyglm(ADHD~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=age_lim_weighted,family=quasibinomial()))
+summary(svyglm(STIMULANT~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
+summary(svyglm(NON_STIM~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
+summary(svyglm(BOTH~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
+summary(svyglm(ANY_ADHD_MED~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
+
 
 
 
