@@ -159,9 +159,12 @@ data_2009 <- raw_data_2009 %>%
 
 #merge each year's dataset
 data_combined <- full_join(full_join(full_join(full_join(full_join(full_join(full_join(full_join(full_join(data_2019,data_2018),data_2016),data_2015),data_2014),data_2013),data_2012),data_2011),data_2010),data_2009)
+#data_combined <- full_join(full_join(full_join(full_join(full_join(full_join(full_join(full_join(data_2018,data_2016),data_2015),data_2014),data_2013),data_2012),data_2011),data_2010),data_2009)
 
-#### RENAME NUMERICAL CODES OF CATEGORICAL VARIABLES ####
 
+#### FORMAT THE DATASET: RENAME, GROUP, AND ADD VARIABLES ####
+
+### Rename Variables ###
 data_combined$RACERETH = factor(data_combined$RACERETH,
                                      levels = c(1,2,3,4),
                                      labels = c("Non-Hispanic White", 
@@ -178,18 +181,6 @@ data_combined$MSA = factor(data_combined$MSA,
                                 levels = c(1,2),
                                 labels = c("Metropolitan Statistical Area",
                                            "Non-Metropolitan Statistical Area"))
-
-data_combined$PAYTYPER = factor(data_combined$PAYTYPER,
-                                     levels = c(-9,-8,1,2,3,4,5,6,7),
-                                     labels = c("Blank",
-                                                "Unknown",
-                                                "Private Insurance",
-                                                "Medicare",
-                                                "Medicaid or CHIP",
-                                                "Worker's Compensation",
-                                                "Self-pay",
-                                                "No Charge",
-                                                "Other"))
 
 data_combined$MAJOR = factor(data_combined$MAJOR,
                                   levels = c(-9,1,2,3,4,5,6),
@@ -208,26 +199,56 @@ data_combined$PRIMCARE = factor(data_combined$PRIMCARE,
                                                 "Yes",
                                                 "No"))
 
-#convert continuous to numeric
+
+data_combined$PAYTYPER = factor(data_combined$PAYTYPER,
+                                levels = c(-9,-8,1,2,3,4,5,6,7),
+                                labels = c("Blank",
+                                           "Unknown",
+                                           "Private Insurance",
+                                           "Medicare",
+                                           "Medicaid or CHIP",
+                                           "Worker's Compensation",
+                                           "Self-pay",
+                                           "No Charge",
+                                           "Other"))
+
+
+### Convert Continuous Data to Numeric ###
 data_combined <- data_combined %>% 
   mutate(YEAR = as.numeric(YEAR), AGE = as.numeric(AGE))
 
-#group ages
+
+### Group Ages ###
 data_combined <- data_combined %>% 
-  mutate(AGE_GROUPED = cut(AGE, 
-                           breaks=c(-Inf,18,65,Inf),
-                           labels=c("<18","18-65",">65")))
+  mutate(AGE_RECODE = case_when(AGE<5 ~"<5",
+                                 AGE>=5 & AGE<18 ~"5-18",
+                                 AGE>=18 & AGE<65 ~"18-65",
+                                 AGE>=65 ~">65"))
 
-#### ADD VARIABLES FOR ADHD DIAGNOSIS AND MEDICATIONS ####
 
-#define ICD-9 and ICD-10 codes for ADHD
+### Group Payer Type and Years ###
+data_combined <- data_combined %>% 
+  mutate(PAYTYPER_RECODE = case_when(PAYTYPER == "Private Insurance"~"Private Insurance",
+                                     PAYTYPER == "Medicare"~"Medicare",
+                                     PAYTYPER == "Medicaid/CHIP"~"Medicaid/CHIP",
+                                     .default = "Other/Unknown")) %>% 
+  mutate(YEAR_RECODE = case_when(YEAR == 2019 | YEAR == 2018 ~ "2018-19",
+                                 YEAR == 2016 | YEAR == 2015 ~ "2015-16",
+                                 YEAR == 2014 | YEAR == 2013 ~ "2013-14",
+                                 YEAR == 2012 | YEAR == 2011 ~ "2011-12",
+                                 YEAR == 2010 | YEAR == 2009 ~ "2009-10"))  %>% 
+  mutate(YEAR_RECODE_2 = case_when(YEAR == 2019 | YEAR == 2018  | YEAR == 2016 | YEAR == 2015 | YEAR == 2014~"2014-19",
+                                   YEAR == 2009 | YEAR == 2010  | YEAR == 2011 | YEAR == 2012 | YEAR == 2013~"2009-13"))
+
+
+### Define ICD-9 and ICD-10 codes for ADHD ###
 ADHD_ICD_codes <- c("F900","F901","F902","F908","F909", #these are ICD-10 codes
                     "314--","3140-","31400","31401","3141-","31410","3142-","31420","3148-","31480","3149-","31490") #these are ICD-9 codes
 
-#define Multum drug category code for stimulants
+### Define Multum Drug Category Code for Stimulants ###
 ADHD_stimulant_codes <- c(71)
 
-#define Multum drugID codes for non-stimulant ADHD medications (list of medications from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3000197/)
+### Define Multum drugID Codes for Non-Stimulant ADHD Medications ###
 ADHD_non_stimulant_codes <- c("d00259", #imipramine
                               "d00145", #desipramine
                               "d00144", #nortriptyline
@@ -242,7 +263,10 @@ ADHD_non_stimulant_codes <- c("d00259", #imipramine
                               "d00058", #carbamazepine
                               "d00182") #buspirone
 
-#add yes/no variables for ADHD diagnosis, stimulant prescription,  non-stimulant prescription, and both stimulant and non-stimulant prescription
+      ## (list of medications from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3000197/)
+
+
+### Add yes/no variables for ADHD diagnosis, stimulant prescription,  non-stimulant prescription, and both stimulant and non-stimulant prescription ###
 data_combined <- data_combined %>% 
   mutate(ADHD = case_when(DIAG1 %in% ADHD_ICD_codes | DIAG2 %in% ADHD_ICD_codes | DIAG3 %in% ADHD_ICD_codes | DIAG4 %in% ADHD_ICD_codes | DIAG5 %in% ADHD_ICD_codes ~1,
          .default = 0)) %>% 
@@ -261,124 +285,112 @@ data_combined <- data_combined %>%
                                   .default = 0)) 
 
 
-#### APPLY WEIGHTING ####
+#### APPLY WEIGHTING AND CREATE WEIGHTED FILTERED DATABASES ####
 
 weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,data=data_combined,nest=TRUE)
 
+peds_weighted <- subset(weighting_design_namcs,(AGE>=5 & AGE<18))
+peds_ADHD_weighted <-subset(peds_weighted,ADHD==1)
 
-#### CREATE FILTERED DATABASES ####
+adult_weighted <- subset(weighting_design_namcs,(AGE>=18 & AGE<65))
+adult_ADHD_weighted <- subset(adult_weighted,ADHD==1)
 
-age_lim_weighted <-subset(weighting_design_namcs,(AGE>=5 & AGE<65))
-ADHD_weighted <- subset(age_lim_weighted,ADHD==1)
+all_age_weighted <- subset(weighting_design_namcs,(AGE>=5 & AGE<65))
+all_age_ADHD_weighted <- subset(all_age_weighted,ADHD==1)
+
+svychisq(~YEAR_RECODE_2+ADHD,all_age_weighted,statistic="adjWald")
+
 
 #### CREATE AN OVERALL COHORT SUMMARY TABLE ####
 
-svytable(~AGE_GROUPED, design=age_lim_weighted)
-svytable(~YEAR, design=age_lim_weighted)
-svytable(~RACERETH, design=age_lim_weighted)
-svytable(~SEX, design=age_lim_weighted)
-svytable(~MSA, design=age_lim_weighted)
-svytable(~PAYTYPER, design=age_lim_weighted)
-svytable(~MAJOR, design=age_lim_weighted)
+#svytable(~YEAR+AGE_RECODE, design=all_age_weighted)
+svytable(~YEAR, design=all_age_weighted)
+svytable(~SEX+AGE_RECODE, design=all_age_weighted)
+svytable(~MSA+AGE_RECODE, design=all_age_weighted)
+svytable(~PAYTYPER+AGE_RECODE, design=all_age_weighted)
+svytable(~ADHD+AGE_RECODE, design=all_age_weighted)
 
-#### NUMBER OF VISITS WITH AN ADHD DIAGNOSIS, BY SELECTED CHARACTERISTICS ####
+table1 <- rbind(svytable(~RACERETH+AGE_RECODE, design=all_age_weighted),
+                svytable(~SEX+AGE_RECODE, design=all_age_weighted),
+                svytable(~MSA+AGE_RECODE, design=all_age_weighted),
+                svytable(~PAYTYPER+AGE_RECODE, design=all_age_weighted),
+                svytable(~ADHD+AGE_RECODE, design=all_age_weighted))
+colnames(table1) <- c("Adult","Peds")
+write.csv(table1,"table1.csv")
 
-adhd_by_sex <- svyby(~ADHD, ~SEX, age_lim_weighted, na=TRUE, svytotal)
-adhd_by_sex
-ggplot(adhd_by_sex, aes(x=SEX, y=ADHDY))+
-  geom_bar(stat="identity")
 
-adhd_by_racereth <- svyby(~ADHD, ~RACERETH, age_lim_weighted, na=TRUE, svytotal)
-ggplot(adhd_by_racereth, aes(x=RACERETH, y=ADHDY))+
-  geom_bar(stat="identity")
 
-adhd_by_msa <- svyby(~ADHD, ~MSA, age_lim_weighted, na=TRUE, svytotal)
-ggplot(adhd_by_msa, aes(x=MSA, y=ADHDY))+
-  geom_bar(stat="identity")
+#### NUMBER OF VISITS WITH AN ADHD DIAGNOSIS, BY YEAR ####
 
-adhd_by_paytyper <- svyby(~ADHD, ~PAYTYPER, age_lim_weighted, na=TRUE, svytotal)
-ggplot(adhd_by_paytyper, aes(x=PAYTYPER, y=ADHDY))+
-  geom_bar(stat="identity")
+adhd_by_year <- svyby(~ADHD, ~YEAR+AGE_RECODE, all_age_weighted, na=TRUE, svymean) 
+adhd_by_year <- cbind(adhd_by_year, confint(adhd_by_year))
+colnames(adhd_by_year) <- c("YEAR", "AGE_RECODE", "ADHD", "SE", "LOWER_CI", "UPPER_CI")
 
-adhd_by_age <- svyby(~ADHD, ~AGE_GROUPED, age_lim_weighted, na=TRUE, svytotal)
-ggplot(adhd_by_age, aes(x=AGE_GROUPED, y=ADHDY))+
-  geom_bar(stat="identity")
-
-adhd_by_year <- svyby(~ADHD, ~YEAR+AGE_GROUPED, age_lim_weighted, na=TRUE, svymean) 
-adhd_by_year <- cbind(adhd_by_year, confint(adhd_by_year)[21:40,])
-colnames(adhd_by_year) <- c("YEAR", "AGE", "ADHDN", "ADHDY", "seN", "seY", "LOWER_CI", "UPPER_CI")
-
-adhd_by_year
-
-ggplot(adhd_by_year, aes(x=YEAR, y=ADHDY, color = AGE))+
+ggplot(adhd_by_year, aes(x=YEAR, y=ADHD, color = AGE_RECODE))+
   geom_line()+
   geom_point()+
-  geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = AGE), alpha=0.2)+
+  geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = AGE_RECODE), alpha=0.2)+
   labs(title = "Proportion of Total Visits with an ADHD Diagnosis, by Age Group", y = "Proportion of Total Visits With an ADHD Diagnosis Code", x = "Year")
 
 
 #### PROPORTION OF ADHD VISITS WITH ADHD MEDICATION PRESCRIBED, BY YEAR ####
 
-stim_by_year <- svyby(~STIMULANT, ~YEAR, ADHD_weighted, na=TRUE, svymean) 
-stim_by_year <- cbind(stim_by_year,confint(stim_by_year)[11:20,]) %>% 
-  mutate(CLASS = "STIM") 
-colnames(stim_by_year) <- c("YEAR","N","Y","se_Y","se_N","LOWER_CI", "UPPER_CI", "CLASS")
+stim_by_year <- svyby(~STIMULANT, ~YEAR, all_age_ADHD_weighted, na=TRUE, svymean) 
+stim_by_year <- cbind(stim_by_year,confint(stim_by_year)) %>% 
+  mutate(CLASS = "STIM")
+colnames(stim_by_year) <- c("YEAR","Y","se_Y","LOWER_CI", "UPPER_CI", "CLASS")
 
-non_stim_by_year <- svyby(~NON_STIM, ~YEAR, ADHD_weighted, na=TRUE, svymean)
-non_stim_by_year <- cbind(non_stim_by_year,confint(non_stim_by_year)[11:20,]) %>% 
+non_stim_by_year <- svyby(~NON_STIM, ~YEAR, all_age_ADHD_weighted, na=TRUE, svymean)
+non_stim_by_year <- cbind(non_stim_by_year,confint(non_stim_by_year)) %>% 
   mutate(CLASS = "NON_STIM") 
-colnames(non_stim_by_year) <- c("YEAR","N","Y","se_Y","se_N","LOWER_CI", "UPPER_CI", "CLASS")
+colnames(non_stim_by_year) <- c("YEAR","Y","se_Y","LOWER_CI", "UPPER_CI", "CLASS")
 
-both_by_year <- svyby(~BOTH, ~YEAR, ADHD_weighted, na=TRUE, svymean)
-both_by_year <- cbind(both_by_year,confint(both_by_year)[11:20,]) %>% 
+both_by_year <- svyby(~BOTH, ~YEAR, all_age_ADHD_weighted, na=TRUE, svymean)
+both_by_year <- cbind(both_by_year,confint(both_by_year)) %>% 
   mutate(CLASS = "BOTH") 
-colnames(both_by_year) <- c("YEAR","N","Y","se_Y","se_N","LOWER_CI", "UPPER_CI", "CLASS")
+colnames(both_by_year) <- c("YEAR","Y","se_Y","LOWER_CI", "UPPER_CI", "CLASS")
 
-any_by_year <- svyby(~ANY_ADHD_MED, ~YEAR, ADHD_weighted, na=TRUE, svymean)
-any_by_year <- cbind(any_by_year,confint(any_by_year)[11:20,]) %>% 
+any_by_year <- svyby(~ANY_ADHD_MED, ~YEAR, all_age_ADHD_weighted, na=TRUE, svymean)
+any_by_year <- cbind(any_by_year,confint(any_by_year)) %>% 
   mutate(CLASS = "ANY") 
-colnames(any_by_year) <- c("YEAR","N","Y","se_Y","se_N","LOWER_CI", "UPPER_CI", "CLASS")
+colnames(any_by_year) <- c("YEAR","Y","se_Y","LOWER_CI", "UPPER_CI", "CLASS")
 
 yearly_rx <- rbind(stim_by_year,non_stim_by_year,both_by_year,any_by_year) 
-
+yearly_rx
 ggplot(data=yearly_rx, aes(x=YEAR, y=Y, color = CLASS)) +
   geom_line() + 
   geom_point() +
-  geom_ribbon(aes(ymin=LOWER_CI, ymax=UPPER_CI, fill = CLASS), 
+  geom_ribbon(aes(ymin=LOWER_CI, ymax=UPPER_CI, fill=CLASS), 
                alpha=0.2) +
-  labs(title = "ADHD Prescribing Among 18-65 yos", x = "Year", y = "% of ADHD Visits with Medication Prescribed")
+  labs(title = "ADHD Prescribing Among 5-18 yos", x = "YEAR", y = "% of ADHD Visits with Medication Prescribed")
   
 
+#### REGRESSIONS ####
+
+### Peds ###
+summary(svyglm(ADHD~SEX+RACERETH+PAYTYPER_RECODE, design=peds_weighted,family=poisson()))
+summary(svyglm(STIMULANT~SEX+RACERETH+PAYTYPER_RECODE, design=peds_ADHD_weighted,family=poisson()))
+summary(svyglm(NON_STIM~SEX+RACERETH+PAYTYPER_RECODE, design=peds_ADHD_weighted,family=poisson()))
+summary(svyglm(BOTH~SEX+RACERETH+PAYTYPER_RECODE, design=peds_ADHD_weighted,family=poisson()))
+summary(svyglm(ANY_ADHD_MED~SEX+RACERETH+PAYTYPER_RECODE, design=peds_ADHD_weighted,family=poisson()))
+
+### Adult ###
+summary(svyglm(ADHD~SEX+RACERETH+PAYTYPER_RECODE, design=adult_weighted,family=poisson()))
+summary(svyglm(STIMULANT~SEX+RACERETH+PAYTYPER_RECODE, design=adult_ADHD_weighted,family=poisson()))
+summary(svyglm(NON_STIM~SEX+RACERETH+PAYTYPER_RECODE, design=adult_ADHD_weighted,family=poisson()))
+summary(svyglm(BOTH~SEX+RACERETH+PAYTYPER_RECODE, design=adult_ADHD_weighted,family=poisson()))
+summary(svyglm(ANY_ADHD_MED~SEX+RACERETH+PAYTYPER_RECODE, design=adult_ADHD_weighted,family=poisson()))
 
 
-#### ANY ADHD PRESCRIBING BY SELECTED CHARS ####
-any_by_racereth <- svyby(~ANY_ADHD_MED, ~RACERETH, ADHD_weighted, na=TRUE, svymean)
-any_by_racereth <- cbind(any_by_racereth,confint(any_by_racereth)[5:8,])
-colnames(any_by_racereth) <- c("RACERETH","N","Y","se_Y","se_N","LOWER_CI", "UPPER_CI")
-
-ggplot(data=any_by_racereth, aes(x=RACERETH,y=Y))+
-  geom_bar(stat="identity")+
-  geom_point()+
-  geom_errorbar(aes(ymin=LOWER_CI,ymax=UPPER_CI),width=0.5)
+### Overall ###
+summary(svyglm(ADHD~SEX+RACERETH+PAYTYPER_RECODE+AGE_RECODE, design=all_age_weighted,family=poisson()))
+summary(svyglm(STIMULANT~SEX+RACERETH+PAYTYPER_RECODE+AGE_RECODE, design=all_age_ADHD_weighted,family=poisson()))
+summary(svyglm(NON_STIM~SEX+RACERETH+PAYTYPER_RECODE+AGE_RECODE, design=all_age_ADHD_weighted,family=poisson()))
+summary(svyglm(BOTH~SEX+RACERETH+PAYTYPER_RECODE+AGE_RECODE, design=all_age_ADHD_weighted,family=poisson()))
+summary(svyglm(ANY_ADHD_MED~SEX+RACERETH+PAYTYPER_RECODE+AGE_RECODE, design=all_age_ADHD_weighted,family=poisson()))
 
 
 
-any_by_paytyper <- svyby(~ANY_ADHD_MED, ~PAYTYPER, ADHD_weighted, na=TRUE, svymean)
-any_by_paytyper <- cbind(any_by_paytyper,confint(any_by_paytyper)[10:18,])
-colnames(any_by_paytyper) <- c("PAYTYPER","N","Y","se_Y","se_N","LOWER_CI", "UPPER_CI")
-
-ggplot(data=any_by_paytyper, aes(x=PAYTYPER,y=Y))+
-  geom_bar(stat="identity")+
-  geom_point()+
-  geom_errorbar(aes(ymin=LOWER_CI,ymax=UPPER_CI),width=0.5)
-
-
-
-summary(svyglm(ADHD~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=age_lim_weighted,family=quasibinomial()))
-summary(svyglm(STIMULANT~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
-summary(svyglm(NON_STIM~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
-summary(svyglm(BOTH~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
-summary(svyglm(ANY_ADHD_MED~SEX+RACERETH+MSA+PAYTYPER+AGE_GROUPED, design=ADHD_weighted,family=quasibinomial()))
 
 
 
@@ -438,7 +450,7 @@ ADHD_Rx_By1 <- function(characteristic) {
   
 }
 
-# line graph of ADHD medication prescribing by year
+# line graph of ADHD medication prescribing by YEAR
 ADHD_rx_by_year <- ADHD_Rx_By1("YEAR") 
 ggplot(ADHD_rx_by_year, aes(x=YEAR,y=PROP,colour=CLASS)) +
   geom_line(lwd = 1.5) +
