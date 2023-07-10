@@ -168,61 +168,66 @@ data_combined <- full_join(full_join(full_join(full_join(full_join(full_join(ful
 
 #### FORMAT THE DATASET: RENAME, GROUP, AND ADD VARIABLES ####
 
-### Rename Variables ###
-data_combined$RACERETH = factor(data_combined$RACERETH,
-                                     levels = c(1,2,3,4),
-                                     labels = c("Non-Hispanic White", 
-                                                "Non-Hispanic Black", 
-                                                "Hispanic", 
-                                                "Non-Hispanic Other/Multiple Race"))
+## Rename continuous variable codes
 
-data_combined$SEX = factor(data_combined$SEX,
-                                levels = c(1,2),
-                                labels = c("Female", 
-                                           "Male"))
+    # Race and Ethnicity
+    data_combined$RACERETH = factor(data_combined$RACERETH,
+                                         levels = c(1,2,3,4),
+                                         labels = c("Non-Hispanic White", 
+                                                    "Non-Hispanic Black", 
+                                                    "Hispanic", 
+                                                    "Non-Hispanic Other/Multiple Race"))
 
-data_combined$MSA = factor(data_combined$MSA,
-                                levels = c(1,2),
-                                labels = c("Metropolitan Statistical Area",
-                                           "Non-Metropolitan Statistical Area"))
+    # Sex
+    data_combined$SEX = factor(data_combined$SEX,
+                                    levels = c(1,2),
+                                    labels = c("Female", 
+                                               "Male"))
+    
+    # Metropolitan Statistical Area (MSA)
+    data_combined$MSA = factor(data_combined$MSA,
+                                    levels = c(1,2),
+                                    labels = c("Metropolitan Statistical Area",
+                                               "Non-Metropolitan Statistical Area"))
+    
+    # Major Reason for Visit
+    data_combined$MAJOR = factor(data_combined$MAJOR,
+                                      levels = c(-9,1,2,3,4,5,6),
+                                      labels = c("Blank",
+                                                 "New problem (<3 mos. onset)",
+                                                 "Chronic Problem, Routine",
+                                                 "Chronic Problem, Flare-up",
+                                                 "Pre Surgery",
+                                                 "Post Surgery",
+                                                 "Preventive Care"))
+    
+    # Primary Care
+    data_combined$PRIMCARE = factor(data_combined$PRIMCARE,
+                                         levels = c(-9,-8,1,2),
+                                         labels = c("Blank",
+                                                    "Unknown",
+                                                    "Yes",
+                                                    "No"))
+    
+    # Payer Type
+    data_combined$PAYTYPER = factor(data_combined$PAYTYPER,
+                                    levels = c(-9,-8,1,2,3,4,5,6,7),
+                                    labels = c("Blank",
+                                               "Unknown",
+                                               "Private Insurance",
+                                               "Medicare",
+                                               "Medicaid or CHIP",
+                                               "Worker's Compensation",
+                                               "Self-pay",
+                                               "No Charge",
+                                               "Other"))
 
-data_combined$MAJOR = factor(data_combined$MAJOR,
-                                  levels = c(-9,1,2,3,4,5,6),
-                                  labels = c("Blank",
-                                             "New problem (<3 mos. onset)",
-                                             "Chronic Problem, Routine",
-                                             "Chronic Problem, Flare-up",
-                                             "Pre Surgery",
-                                             "Post Surgery",
-                                             "Preventive Care"))
-
-data_combined$PRIMCARE = factor(data_combined$PRIMCARE,
-                                     levels = c(-9,-8,1,2),
-                                     labels = c("Blank",
-                                                "Unknown",
-                                                "Yes",
-                                                "No"))
+## Convert continuous data to numeric 
+    data_combined <- data_combined %>% 
+      mutate(YEAR = as.numeric(YEAR), AGE = as.numeric(AGE))
 
 
-data_combined$PAYTYPER = factor(data_combined$PAYTYPER,
-                                levels = c(-9,-8,1,2,3,4,5,6,7),
-                                labels = c("Blank",
-                                           "Unknown",
-                                           "Private Insurance",
-                                           "Medicare",
-                                           "Medicaid or CHIP",
-                                           "Worker's Compensation",
-                                           "Self-pay",
-                                           "No Charge",
-                                           "Other"))
-
-
-### Convert Continuous Data to Numeric ###
-data_combined <- data_combined %>% 
-  mutate(YEAR = as.numeric(YEAR), AGE = as.numeric(AGE))
-
-
-### Group Ages ###
+## Group ages
 data_combined <- data_combined %>% 
   mutate(AGE_RECODE = case_when(AGE<5 ~"<5",
                                  AGE>=5 & AGE<18 ~"5-18",
@@ -234,7 +239,7 @@ data_combined <- data_combined %>%
 data_combined <- data_combined %>% 
   mutate(PAYTYPER_RECODE = case_when(PAYTYPER == "Private Insurance"~"Private Insurance",
                                      PAYTYPER == "Medicare"~"Medicare",
-                                     PAYTYPER == "Medicaid/CHIP"~"Medicaid/CHIP",
+                                     PAYTYPER == "Medicaid or CHIP"~"Medicaid/CHIP",
                                      .default = "Other/Unknown")) %>% 
   mutate(YEAR_RECODE = case_when(YEAR == 2019 | YEAR == 2018 ~ "2018-19",
                                  YEAR == 2016 | YEAR == 2015 ~ "2015-16",
@@ -318,16 +323,14 @@ data_combined <- data_combined %>%
 
 #### COHORT SUMMARY STATISTICS ####
 
-svytable(~COUNTER+AGE_RECODE, design=all_age_weighted)
-
 table1 <- rbind(svytable(~COUNTER+AGE_RECODE, design=all_age_weighted),
-                svytable(~RACERETH+AGE_RECODE, design=all_age_weighted),
-                svytable(~SEX+AGE_RECODE, design=all_age_weighted),
-                svytable(~MSA+AGE_RECODE, design=all_age_weighted),
-                svytable(~PAYTYPER+AGE_RECODE, design=all_age_weighted),
-                svytable(~ADHD+AGE_RECODE, design=all_age_weighted))
-write.csv(table1,"table1.csv")
-
+                    svytable(~RACERETH+AGE_RECODE, design=all_age_weighted),
+                    svytable(~SEX+AGE_RECODE, design=all_age_weighted),
+                    svytable(~MSA+AGE_RECODE, design=all_age_weighted),
+                    svytable(~PAYTYPER_RECODE+AGE_RECODE, design=all_age_weighted),
+                    svytable(~ADHD+AGE_RECODE, design=all_age_weighted))
+    table1
+    write.csv(svytable(~PAYTYPER_RECODE+AGE_RECODE, design=all_age_weighted), "paytyper-2.csv")
 
 
 #### ADHD DIAGNOSIS STATS ####
@@ -347,16 +350,16 @@ write.csv(table1,"table1.csv")
 ## Multivariable regression of factors associated with an ADHD diagnosis
     
     # All ages, with age as a covariate
-    tidy((svyglm(ADHD~SEX+RACERETH+AGE_RECODE+PAYTYPER_RECODE, design=all_age_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(ADHD~SEX+RACERETH+relevel(factor(AGE_RECODE), ref = "18-65")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE),"all_ages_ADHD_regression.csv")
     
     # 5-18yo
-    tidy((svyglm(ADHD~SEX+RACERETH+PAYTYPER_RECODE, design=peds_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(ADHD~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "peds_ADHD_regression.csv")
     
     # 18-65yo
-    tidy((svyglm(ADHD~SEX+RACERETH+PAYTYPER_RECODE, design=adult_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(ADHD~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=adult_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "adult_ADHD_regression.csv")
     
     # >65yo 
-    tidy((svyglm(ADHD~SEX+RACERETH+PAYTYPER_RECODE, design=geriatric_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(ADHD~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=geriatric_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "geriatric_ADHD_regression.csv")
 
     
 
@@ -410,36 +413,36 @@ write.csv(table1,"table1.csv")
 ## Multivariable regression of factors associated with a stimulant prescription at a ADHD visit
     
     # All ages, with age as a covariate
-    tidy((svyglm(STIMULANT~SEX+RACERETH+AGE_RECODE+PAYTYPER_RECODE, design=all_age_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(STIMULANT~SEX+RACERETH+relevel(factor(AGE_RECODE), ref = "18-65")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "all_ages_STIM_regression.csv")
 
     # 5-18yo
-    tidy((svyglm(STIMULANT~SEX+RACERETH+PAYTYPER_RECODE, design=peds_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(STIMULANT~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "peds_STIM_regression.csv")
     
     # 18-65yo
-    tidy((svyglm(STIMULANT~SEX+RACERETH+PAYTYPER_RECODE, design=adult_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(STIMULANT~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=adult_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "adult_STIM_regression.csv")
     
     # >65yo 
-    tidy((svyglm(STIMULANT~SEX+RACERETH+PAYTYPER_RECODE, design=geriatric_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE)
+    write.csv(tidy((svyglm(STIMULANT~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=geriatric_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "geriatric_STIM_regression.csv")
     
 
 ## Multivariable regression of factors associated with a non-stimulant prescription at a ADHD visit
     
     # All ages, with age as a covariate
-    summary(svyglm(NON_STIM~SEX+RACERETH+AGE_RECODE+PAYTYPER_RECODE, design=all_age_ADHD_weighted,family=quasibinomial()))
+    write.csv(tidy((svyglm(NON_STIM~SEX+RACERETH+relevel(factor(AGE_RECODE), ref = "18-65")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "all_ages_NON-STIM_regression.csv")
     
     # 5-18yo
-    summary(svyglm(NON_STIM~SEX+RACERETH+PAYTYPER_RECODE, design=peds_ADHD_weighted,family=quasibinomial()))
+    write.csv(tidy((svyglm(NON_STIM~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "peds_NON-STIM_regression.csv")
     
     # 18-65yo
-    summary(svyglm(NON_STIM~SEX+RACERETH+PAYTYPER_RECODE, design=adult_ADHD_weighted,family=quasibinomial()))
+    write.csv(tidy((svyglm(NON_STIM~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=adult_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "adult_NON-STIM_regression.csv")
     
     # >65yo 
-    summary(svyglm(NON_STIM~SEX+RACERETH+PAYTYPER_RECODE, design=geriatric_ADHD_weighted,family=quasibinomial()))
+    write.csv(tidy((svyglm(NON_STIM~SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=geriatric_ADHD_weighted,family=quasibinomial())), conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE), "geriatric_NON-STIM_regression.csv")
     
-  
 
-
-
+    
+    
+    
 
 
 #### OLD UNWEIGHTED ####
