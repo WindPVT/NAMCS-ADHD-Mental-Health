@@ -213,22 +213,16 @@ data_2009 <- raw_data_2009 %>%
 data_combined <- full_join(full_join(full_join(full_join(data_2014,data_2015),data_2016),data_2018),data_2019)
 
 ## Rename continuous variable codes
-
-# Race and Ethnicity
 data_combined$RACERETH = factor(data_combined$RACERETH,
                                 levels = c(1,2,3,4),
                                 labels = c("Non-Hispanic White", 
                                            "Non-Hispanic Black", 
                                            "Hispanic", 
                                            "Non-Hispanic Other/Multiple Race"))
-
-# Sex
 data_combined$SEX = factor(data_combined$SEX,
                            levels = c(1,2),
                            labels = c("Female", 
                                       "Male"))
-
-# Metropolitan Statistical Area (MSA)
 data_combined$MSA = factor(data_combined$MSA,
                            levels = c(1,2),
                            labels = c("Metropolitan Statistical Area",
@@ -236,9 +230,9 @@ data_combined$MSA = factor(data_combined$MSA,
 
 
 ### Define Multum Drug Codes and ICD Codes of Interest ###
-Stimulant_Dx_Codes <- c(71)
+Stimulant_Rx_Codes <- c(71)
 
-Non_Stimulant_Dx_Codes <- c("d00259", #imipramine
+Non_Stimulant_Rx_Codes <- c("d00259", #imipramine
                             "d00145", #desipramine
                             "d00144", #nortriptyline
                             "d00181", #bupropion
@@ -303,14 +297,13 @@ data_combined <- data_combined %>%
                                 MHP ==1 ~ "MHP")) %>%
   mutate(OTHPROV_RECODE = case_when(OTHPROV == 0 ~ "No Other Provider",
                                     OTHPROV ==1 ~ "Other Provider")) %>%
-  
-  mutate(ANY_STIM = case_when(((RX1CAT1 %in% Stimulant_Dx_Codes | RX2CAT1 %in% Stimulant_Dx_Codes | RX3CAT1 %in% Stimulant_Dx_Codes | RX4CAT1 %in% Stimulant_Dx_Codes | RX5CAT1 %in% Stimulant_Dx_Codes | RX6CAT1 %in% Stimulant_Dx_Codes | RX7CAT1 %in% Stimulant_Dx_Codes | RX8CAT1 %in% Stimulant_Dx_Codes | RX9CAT1 %in% Stimulant_Dx_Codes | RX10CAT1 %in% Stimulant_Dx_Codes | RX11CAT1 %in% Stimulant_Dx_Codes | RX12CAT1 %in% Stimulant_Dx_Codes | RX13CAT1 %in% Stimulant_Dx_Codes | RX14CAT1 %in% Stimulant_Dx_Codes | RX15CAT1 %in% Stimulant_Dx_Codes | RX15CAT1 %in% Stimulant_Dx_Codes | RX16CAT1 %in% Stimulant_Dx_Codes | RX17CAT1 %in% Stimulant_Dx_Codes | RX18CAT1 %in% Stimulant_Dx_Codes | RX19CAT1 %in% Stimulant_Dx_Codes | RX20CAT1 %in% Stimulant_Dx_Codes | RX21CAT1 %in% Stimulant_Dx_Codes | RX22CAT1 %in% Stimulant_Dx_Codes | RX23CAT1 %in% Stimulant_Dx_Codes | RX24CAT1 %in% Stimulant_Dx_Codes | RX25CAT1 %in% Stimulant_Dx_Codes | RX26CAT1 %in% Stimulant_Dx_Codes | RX27CAT1 %in% Stimulant_Dx_Codes | RX28CAT1 %in% Stimulant_Dx_Codes | RX29CAT1 %in% Stimulant_Dx_Codes | RX30CAT1 %in% Stimulant_Dx_Codes |  
-                                RX1CAT2 %in% Stimulant_Dx_Codes | RX2CAT2 %in% Stimulant_Dx_Codes | RX3CAT2 %in% Stimulant_Dx_Codes | RX4CAT2 %in% Stimulant_Dx_Codes | RX5CAT2 %in% Stimulant_Dx_Codes | RX6CAT2 %in% Stimulant_Dx_Codes | RX7CAT2 %in% Stimulant_Dx_Codes | RX8CAT2 %in% Stimulant_Dx_Codes | RX9CAT2 %in% Stimulant_Dx_Codes | RX10CAT2 %in% Stimulant_Dx_Codes | RX11CAT2 %in% Stimulant_Dx_Codes | RX12CAT2 %in% Stimulant_Dx_Codes | RX13CAT2 %in% Stimulant_Dx_Codes | RX14CAT2 %in% Stimulant_Dx_Codes | RX15CAT2 %in% Stimulant_Dx_Codes | RX15CAT2 %in% Stimulant_Dx_Codes | RX16CAT2 %in% Stimulant_Dx_Codes | RX17CAT2 %in% Stimulant_Dx_Codes | RX18CAT2 %in% Stimulant_Dx_Codes | RX19CAT2 %in% Stimulant_Dx_Codes | RX20CAT2 %in% Stimulant_Dx_Codes | RX21CAT2 %in% Stimulant_Dx_Codes | RX22CAT2 %in% Stimulant_Dx_Codes | RX23CAT2 %in% Stimulant_Dx_Codes | RX24CAT2 %in% Stimulant_Dx_Codes | RX25CAT2 %in% Stimulant_Dx_Codes | RX26CAT2 %in% Stimulant_Dx_Codes | RX27CAT2 %in% Stimulant_Dx_Codes | RX28CAT2 %in% Stimulant_Dx_Codes | RX29CAT2 %in% Stimulant_Dx_Codes | RX30CAT2 %in% Stimulant_Dx_Codes)) ~1,
+  mutate(ANY_STIM = case_when(((RX1CAT1 %in% Stimulant_Rx_Codes | RX2CAT1 %in% Stimulant_Rx_Codes | RX3CAT1 %in% Stimulant_Rx_Codes | RX4CAT1 %in% Stimulant_Rx_Codes | RX5CAT1 %in% Stimulant_Rx_Codes | RX6CAT1 %in% Stimulant_Rx_Codes | RX7CAT1 %in% Stimulant_Rx_Codes | RX8CAT1 %in% Stimulant_Rx_Codes | RX9CAT1 %in% Stimulant_Rx_Codes | RX10CAT1 %in% Stimulant_Rx_Codes | RX11CAT1 %in% Stimulant_Rx_Codes | RX12CAT1 %in% Stimulant_Rx_Codes | RX13CAT1 %in% Stimulant_Rx_Codes | RX14CAT1 %in% Stimulant_Rx_Codes | RX15CAT1 %in% Stimulant_Rx_Codes | RX15CAT1 %in% Stimulant_Rx_Codes | RX16CAT1 %in% Stimulant_Rx_Codes | RX17CAT1 %in% Stimulant_Rx_Codes | RX18CAT1 %in% Stimulant_Rx_Codes | RX19CAT1 %in% Stimulant_Rx_Codes | RX20CAT1 %in% Stimulant_Rx_Codes | RX21CAT1 %in% Stimulant_Rx_Codes | RX22CAT1 %in% Stimulant_Rx_Codes | RX23CAT1 %in% Stimulant_Rx_Codes | RX24CAT1 %in% Stimulant_Rx_Codes | RX25CAT1 %in% Stimulant_Rx_Codes | RX26CAT1 %in% Stimulant_Rx_Codes | RX27CAT1 %in% Stimulant_Rx_Codes | RX28CAT1 %in% Stimulant_Rx_Codes | RX29CAT1 %in% Stimulant_Rx_Codes | RX30CAT1 %in% Stimulant_Rx_Codes |  
+                                RX1CAT2 %in% Stimulant_Rx_Codes | RX2CAT2 %in% Stimulant_Rx_Codes | RX3CAT2 %in% Stimulant_Rx_Codes | RX4CAT2 %in% Stimulant_Rx_Codes | RX5CAT2 %in% Stimulant_Rx_Codes | RX6CAT2 %in% Stimulant_Rx_Codes | RX7CAT2 %in% Stimulant_Rx_Codes | RX8CAT2 %in% Stimulant_Rx_Codes | RX9CAT2 %in% Stimulant_Rx_Codes | RX10CAT2 %in% Stimulant_Rx_Codes | RX11CAT2 %in% Stimulant_Rx_Codes | RX12CAT2 %in% Stimulant_Rx_Codes | RX13CAT2 %in% Stimulant_Rx_Codes | RX14CAT2 %in% Stimulant_Rx_Codes | RX15CAT2 %in% Stimulant_Rx_Codes | RX15CAT2 %in% Stimulant_Rx_Codes | RX16CAT2 %in% Stimulant_Rx_Codes | RX17CAT2 %in% Stimulant_Rx_Codes | RX18CAT2 %in% Stimulant_Rx_Codes | RX19CAT2 %in% Stimulant_Rx_Codes | RX20CAT2 %in% Stimulant_Rx_Codes | RX21CAT2 %in% Stimulant_Rx_Codes | RX22CAT2 %in% Stimulant_Rx_Codes | RX23CAT2 %in% Stimulant_Rx_Codes | RX24CAT2 %in% Stimulant_Rx_Codes | RX25CAT2 %in% Stimulant_Rx_Codes | RX26CAT2 %in% Stimulant_Rx_Codes | RX27CAT2 %in% Stimulant_Rx_Codes | RX28CAT2 %in% Stimulant_Rx_Codes | RX29CAT2 %in% Stimulant_Rx_Codes | RX30CAT2 %in% Stimulant_Rx_Codes)) ~1,
                               .default = 0))  %>% 
-  mutate(NEW_STIM = case_when((((RX1CAT1 %in% Stimulant_Dx_Codes & NCMED1==1) | (RX2CAT1 %in% Stimulant_Dx_Codes & NCMED2==1) | (RX3CAT1 %in% Stimulant_Dx_Codes & NCMED3==1) | (RX4CAT1 %in% Stimulant_Dx_Codes & NCMED4==1) | (RX5CAT1 %in% Stimulant_Dx_Codes & NCMED5==1) | (RX6CAT1 %in% Stimulant_Dx_Codes & NCMED6==1) | (RX7CAT1 %in% Stimulant_Dx_Codes & NCMED7==1) | (RX8CAT1 %in% Stimulant_Dx_Codes & NCMED8==1) | (RX9CAT1 %in% Stimulant_Dx_Codes & NCMED9==1) | (RX10CAT1 %in% Stimulant_Dx_Codes & NCMED10==1) | (RX11CAT1 %in% Stimulant_Dx_Codes & NCMED11==1) | (RX12CAT1 %in% Stimulant_Dx_Codes & NCMED12==1) | (RX13CAT1 %in% Stimulant_Dx_Codes & NCMED13==1) | (RX14CAT1 %in% Stimulant_Dx_Codes & NCMED14==1) | (RX15CAT1 %in% Stimulant_Dx_Codes & NCMED15==1) | (RX16CAT1 %in% Stimulant_Dx_Codes & NCMED16==1) | (RX17CAT1 %in% Stimulant_Dx_Codes & NCMED17==1) | (RX18CAT1 %in% Stimulant_Dx_Codes & NCMED18==1) | (RX19CAT1 %in% Stimulant_Dx_Codes & NCMED19==1) | (RX20CAT1 %in% Stimulant_Dx_Codes & NCMED20==1) | (RX21CAT1 %in% Stimulant_Dx_Codes & NCMED21==1) | (RX22CAT1 %in% Stimulant_Dx_Codes & NCMED22==1) | (RX23CAT1 %in% Stimulant_Dx_Codes & NCMED23==1) | (RX24CAT1 %in% Stimulant_Dx_Codes & NCMED24==1) | (RX25CAT1 %in% Stimulant_Dx_Codes & NCMED25==1) | (RX26CAT1 %in% Stimulant_Dx_Codes & NCMED26==1) | (RX27CAT1 %in% Stimulant_Dx_Codes & NCMED27==1) | (RX28CAT1 %in% Stimulant_Dx_Codes & NCMED28==1) | (RX29CAT1 %in% Stimulant_Dx_Codes & NCMED29==1) | (RX30CAT1 %in% Stimulant_Dx_Codes & NCMED30==1) |  
-                                (RX1CAT2 %in% Stimulant_Dx_Codes & NCMED1==1) | (RX2CAT2 %in% Stimulant_Dx_Codes & NCMED2==1) | (RX3CAT2 %in% Stimulant_Dx_Codes & NCMED3==1) | (RX4CAT2 %in% Stimulant_Dx_Codes & NCMED4==1) | (RX5CAT2 %in% Stimulant_Dx_Codes & NCMED5==1) | (RX6CAT2 %in% Stimulant_Dx_Codes & NCMED6==1) | (RX7CAT2 %in% Stimulant_Dx_Codes & NCMED7==1) | (RX8CAT2 %in% Stimulant_Dx_Codes & NCMED8==1) | (RX9CAT2 %in% Stimulant_Dx_Codes & NCMED9==1) | (RX10CAT2 %in% Stimulant_Dx_Codes & NCMED10==1) | (RX11CAT2 %in% Stimulant_Dx_Codes & NCMED11==1) | (RX12CAT2 %in% Stimulant_Dx_Codes & NCMED12==1) | (RX13CAT2 %in% Stimulant_Dx_Codes & NCMED13==1) | (RX14CAT2 %in% Stimulant_Dx_Codes & NCMED14==1) | (RX15CAT2 %in% Stimulant_Dx_Codes & NCMED15==1) | (RX16CAT2 %in% Stimulant_Dx_Codes & NCMED16==1) | (RX17CAT2 %in% Stimulant_Dx_Codes & NCMED17==1) | (RX18CAT2 %in% Stimulant_Dx_Codes & NCMED18==1) | (RX19CAT2 %in% Stimulant_Dx_Codes & NCMED19==1) | (RX20CAT2 %in% Stimulant_Dx_Codes & NCMED20==1) | (RX21CAT2 %in% Stimulant_Dx_Codes & NCMED21==1) | (RX22CAT2 %in% Stimulant_Dx_Codes & NCMED22==1) | (RX23CAT2 %in% Stimulant_Dx_Codes & NCMED23==1) | (RX24CAT2 %in% Stimulant_Dx_Codes & NCMED24==1) | (RX25CAT2 %in% Stimulant_Dx_Codes & NCMED25==1) | (RX26CAT2 %in% Stimulant_Dx_Codes & NCMED26==1) | (RX27CAT2 %in% Stimulant_Dx_Codes & NCMED27==1) | (RX28CAT2 %in% Stimulant_Dx_Codes & NCMED28==1) | (RX29CAT2 %in% Stimulant_Dx_Codes & NCMED29==1) | (RX30CAT2 %in% Stimulant_Dx_Codes & NCMED30==1))) ~1,
+  mutate(NEW_STIM = case_when((((RX1CAT1 %in% Stimulant_Rx_Codes & NCMED1==1) | (RX2CAT1 %in% Stimulant_Rx_Codes & NCMED2==1) | (RX3CAT1 %in% Stimulant_Rx_Codes & NCMED3==1) | (RX4CAT1 %in% Stimulant_Rx_Codes & NCMED4==1) | (RX5CAT1 %in% Stimulant_Rx_Codes & NCMED5==1) | (RX6CAT1 %in% Stimulant_Rx_Codes & NCMED6==1) | (RX7CAT1 %in% Stimulant_Rx_Codes & NCMED7==1) | (RX8CAT1 %in% Stimulant_Rx_Codes & NCMED8==1) | (RX9CAT1 %in% Stimulant_Rx_Codes & NCMED9==1) | (RX10CAT1 %in% Stimulant_Rx_Codes & NCMED10==1) | (RX11CAT1 %in% Stimulant_Rx_Codes & NCMED11==1) | (RX12CAT1 %in% Stimulant_Rx_Codes & NCMED12==1) | (RX13CAT1 %in% Stimulant_Rx_Codes & NCMED13==1) | (RX14CAT1 %in% Stimulant_Rx_Codes & NCMED14==1) | (RX15CAT1 %in% Stimulant_Rx_Codes & NCMED15==1) | (RX16CAT1 %in% Stimulant_Rx_Codes & NCMED16==1) | (RX17CAT1 %in% Stimulant_Rx_Codes & NCMED17==1) | (RX18CAT1 %in% Stimulant_Rx_Codes & NCMED18==1) | (RX19CAT1 %in% Stimulant_Rx_Codes & NCMED19==1) | (RX20CAT1 %in% Stimulant_Rx_Codes & NCMED20==1) | (RX21CAT1 %in% Stimulant_Rx_Codes & NCMED21==1) | (RX22CAT1 %in% Stimulant_Rx_Codes & NCMED22==1) | (RX23CAT1 %in% Stimulant_Rx_Codes & NCMED23==1) | (RX24CAT1 %in% Stimulant_Rx_Codes & NCMED24==1) | (RX25CAT1 %in% Stimulant_Rx_Codes & NCMED25==1) | (RX26CAT1 %in% Stimulant_Rx_Codes & NCMED26==1) | (RX27CAT1 %in% Stimulant_Rx_Codes & NCMED27==1) | (RX28CAT1 %in% Stimulant_Rx_Codes & NCMED28==1) | (RX29CAT1 %in% Stimulant_Rx_Codes & NCMED29==1) | (RX30CAT1 %in% Stimulant_Rx_Codes & NCMED30==1) |  
+                                (RX1CAT2 %in% Stimulant_Rx_Codes & NCMED1==1) | (RX2CAT2 %in% Stimulant_Rx_Codes & NCMED2==1) | (RX3CAT2 %in% Stimulant_Rx_Codes & NCMED3==1) | (RX4CAT2 %in% Stimulant_Rx_Codes & NCMED4==1) | (RX5CAT2 %in% Stimulant_Rx_Codes & NCMED5==1) | (RX6CAT2 %in% Stimulant_Rx_Codes & NCMED6==1) | (RX7CAT2 %in% Stimulant_Rx_Codes & NCMED7==1) | (RX8CAT2 %in% Stimulant_Rx_Codes & NCMED8==1) | (RX9CAT2 %in% Stimulant_Rx_Codes & NCMED9==1) | (RX10CAT2 %in% Stimulant_Rx_Codes & NCMED10==1) | (RX11CAT2 %in% Stimulant_Rx_Codes & NCMED11==1) | (RX12CAT2 %in% Stimulant_Rx_Codes & NCMED12==1) | (RX13CAT2 %in% Stimulant_Rx_Codes & NCMED13==1) | (RX14CAT2 %in% Stimulant_Rx_Codes & NCMED14==1) | (RX15CAT2 %in% Stimulant_Rx_Codes & NCMED15==1) | (RX16CAT2 %in% Stimulant_Rx_Codes & NCMED16==1) | (RX17CAT2 %in% Stimulant_Rx_Codes & NCMED17==1) | (RX18CAT2 %in% Stimulant_Rx_Codes & NCMED18==1) | (RX19CAT2 %in% Stimulant_Rx_Codes & NCMED19==1) | (RX20CAT2 %in% Stimulant_Rx_Codes & NCMED20==1) | (RX21CAT2 %in% Stimulant_Rx_Codes & NCMED21==1) | (RX22CAT2 %in% Stimulant_Rx_Codes & NCMED22==1) | (RX23CAT2 %in% Stimulant_Rx_Codes & NCMED23==1) | (RX24CAT2 %in% Stimulant_Rx_Codes & NCMED24==1) | (RX25CAT2 %in% Stimulant_Rx_Codes & NCMED25==1) | (RX26CAT2 %in% Stimulant_Rx_Codes & NCMED26==1) | (RX27CAT2 %in% Stimulant_Rx_Codes & NCMED27==1) | (RX28CAT2 %in% Stimulant_Rx_Codes & NCMED28==1) | (RX29CAT2 %in% Stimulant_Rx_Codes & NCMED29==1) | (RX30CAT2 %in% Stimulant_Rx_Codes & NCMED30==1))) ~1,
                               .default = 0))  %>% 
-  mutate(NON_STIM = case_when((DRUGID1 %in% Non_Stimulant_Dx_Codes | DRUGID2 %in% Non_Stimulant_Dx_Codes | DRUGID3 %in% Non_Stimulant_Dx_Codes | DRUGID4 %in% Non_Stimulant_Dx_Codes | DRUGID5 %in% Non_Stimulant_Dx_Codes | DRUGID6 %in% Non_Stimulant_Dx_Codes | DRUGID7 %in% Non_Stimulant_Dx_Codes | DRUGID8 %in% Non_Stimulant_Dx_Codes | DRUGID9 %in% Non_Stimulant_Dx_Codes | DRUGID10 %in% Non_Stimulant_Dx_Codes | DRUGID11 %in% Non_Stimulant_Dx_Codes | DRUGID12 %in% Non_Stimulant_Dx_Codes | DRUGID13 %in% Non_Stimulant_Dx_Codes | DRUGID14 %in% Non_Stimulant_Dx_Codes | DRUGID15 %in% Non_Stimulant_Dx_Codes | DRUGID16 %in% Non_Stimulant_Dx_Codes | DRUGID17 %in% Non_Stimulant_Dx_Codes | DRUGID18 %in% Non_Stimulant_Dx_Codes | DRUGID19 %in% Non_Stimulant_Dx_Codes | DRUGID20 %in% Non_Stimulant_Dx_Codes | DRUGID21 %in% Non_Stimulant_Dx_Codes | DRUGID22 %in% Non_Stimulant_Dx_Codes | DRUGID23 %in% Non_Stimulant_Dx_Codes | DRUGID24 %in% Non_Stimulant_Dx_Codes | DRUGID25 %in% Non_Stimulant_Dx_Codes | DRUGID26 %in% Non_Stimulant_Dx_Codes | DRUGID27 %in% Non_Stimulant_Dx_Codes | DRUGID28 %in% Non_Stimulant_Dx_Codes | DRUGID29 %in% Non_Stimulant_Dx_Codes | DRUGID30 %in% Non_Stimulant_Dx_Codes) ~"Non-Stim Rx",
+  mutate(NON_STIM = case_when((DRUGID1 %in% Non_Stimulant_Rx_Codes | DRUGID2 %in% Non_Stimulant_Rx_Codes | DRUGID3 %in% Non_Stimulant_Rx_Codes | DRUGID4 %in% Non_Stimulant_Rx_Codes | DRUGID5 %in% Non_Stimulant_Rx_Codes | DRUGID6 %in% Non_Stimulant_Rx_Codes | DRUGID7 %in% Non_Stimulant_Rx_Codes | DRUGID8 %in% Non_Stimulant_Rx_Codes | DRUGID9 %in% Non_Stimulant_Rx_Codes | DRUGID10 %in% Non_Stimulant_Rx_Codes | DRUGID11 %in% Non_Stimulant_Rx_Codes | DRUGID12 %in% Non_Stimulant_Rx_Codes | DRUGID13 %in% Non_Stimulant_Rx_Codes | DRUGID14 %in% Non_Stimulant_Rx_Codes | DRUGID15 %in% Non_Stimulant_Rx_Codes | DRUGID16 %in% Non_Stimulant_Rx_Codes | DRUGID17 %in% Non_Stimulant_Rx_Codes | DRUGID18 %in% Non_Stimulant_Rx_Codes | DRUGID19 %in% Non_Stimulant_Rx_Codes | DRUGID20 %in% Non_Stimulant_Rx_Codes | DRUGID21 %in% Non_Stimulant_Rx_Codes | DRUGID22 %in% Non_Stimulant_Rx_Codes | DRUGID23 %in% Non_Stimulant_Rx_Codes | DRUGID24 %in% Non_Stimulant_Rx_Codes | DRUGID25 %in% Non_Stimulant_Rx_Codes | DRUGID26 %in% Non_Stimulant_Rx_Codes | DRUGID27 %in% Non_Stimulant_Rx_Codes | DRUGID28 %in% Non_Stimulant_Rx_Codes | DRUGID29 %in% Non_Stimulant_Rx_Codes | DRUGID30 %in% Non_Stimulant_Rx_Codes) ~"Non-Stim Rx",
                               .default = "No Non-Stim Rx")) %>% 
   mutate(MAOI = case_when(((RX1CAT1 %in% MAOI_codes | RX2CAT1 %in% MAOI_codes | RX3CAT1 %in% MAOI_codes | RX4CAT1 %in% MAOI_codes | RX5CAT1 %in% MAOI_codes | RX6CAT1 %in% MAOI_codes | RX7CAT1 %in% MAOI_codes | RX8CAT1 %in% MAOI_codes | RX9CAT1 %in% MAOI_codes | RX10CAT1 %in% MAOI_codes | RX11CAT1 %in% MAOI_codes | RX12CAT1 %in% MAOI_codes | RX13CAT1 %in% MAOI_codes | RX14CAT1 %in% MAOI_codes | RX15CAT1 %in% MAOI_codes | RX15CAT1 %in% MAOI_codes | RX16CAT1 %in% MAOI_codes | RX17CAT1 %in% MAOI_codes | RX18CAT1 %in% MAOI_codes | RX19CAT1 %in% MAOI_codes | RX20CAT1 %in% MAOI_codes | RX21CAT1 %in% MAOI_codes | RX22CAT1 %in% MAOI_codes | RX23CAT1 %in% MAOI_codes | RX24CAT1 %in% MAOI_codes | RX25CAT1 %in% MAOI_codes | RX26CAT1 %in% MAOI_codes | RX27CAT1 %in% MAOI_codes | RX28CAT1 %in% MAOI_codes | RX29CAT1 %in% MAOI_codes | RX30CAT1 %in% MAOI_codes |  
                             RX1CAT2 %in% MAOI_codes | RX2CAT2 %in% MAOI_codes | RX3CAT2 %in% MAOI_codes | RX4CAT2 %in% MAOI_codes | RX5CAT2 %in% MAOI_codes | RX6CAT2 %in% MAOI_codes | RX7CAT2 %in% MAOI_codes | RX8CAT2 %in% MAOI_codes | RX9CAT2 %in% MAOI_codes | RX10CAT2 %in% MAOI_codes | RX11CAT2 %in% MAOI_codes | RX12CAT2 %in% MAOI_codes | RX13CAT2 %in% MAOI_codes | RX14CAT2 %in% MAOI_codes | RX15CAT2 %in% MAOI_codes | RX15CAT2 %in% MAOI_codes | RX16CAT2 %in% MAOI_codes | RX17CAT2 %in% MAOI_codes | RX18CAT2 %in% MAOI_codes | RX19CAT2 %in% MAOI_codes | RX20CAT2 %in% MAOI_codes | RX21CAT2 %in% MAOI_codes | RX22CAT2 %in% MAOI_codes | RX23CAT2 %in% MAOI_codes | RX24CAT2 %in% MAOI_codes | RX25CAT2 %in% MAOI_codes | RX26CAT2 %in% MAOI_codes | RX27CAT2 %in% MAOI_codes | RX28CAT2 %in% MAOI_codes | RX29CAT2 %in% MAOI_codes | RX30CAT2 %in% MAOI_codes |
@@ -344,16 +337,26 @@ ya_weighted <- subset(all_age_weighted,(AGE>=18 & AGE <30))
 adult_weighted <- subset(all_age_weighted,(AGE>=30 & AGE <65))
 ger_weighted <- subset(all_age_weighted,(AGE>=65))
 
+#any stimulant 
 all_age_any_stim <- subset(all_age_weighted,ANY_STIM==1)
-all_age_new_stim <- subset(all_age_weighted,NEW_STIM==1)
+peds_any_stim <- subset(peds_weighted,ANY_STIM==1)
+ya_any_stim <- subset(ya_weighted,ANY_STIM==1)
+adult_any_stim <- subset(adult_weighted,ANY_STIM==1)
+ger_any_stim <- subset(ger_weighted,ANY_STIM==1)
 
-inap_rx <- subset(all_age_any_stim, (CAD==1 | CEBVD==1 | HTN==1 | SUBSTAB==1 | PREGNANT==1))
+#new stimulant
+all_age_new_stim <- subset(all_age_weighted,NEW_STIM==1)
+peds_new_stim <- subset(peds_weighted,NEW_STIM==1)
+ya_new_stim <- subset(ya_weighted,NEW_STIM==1)
+adult_new_stim <- subset(adult_weighted,NEW_STIM==1)
+ger_new_stim <- subset(ger_weighted,NEW_STIM==1)
 
 
 
 #### TABLES AND REGRESSIONS ####
 
 table1_any <- rbind(#total
+  
                 svytable(~COUNTER+ANY_STIM, design=all_age_weighted),
                 
                 #visit characteristics
@@ -390,14 +393,13 @@ table1_any <- rbind(#total
                 svytable(~PREGNANT+ANY_STIM, design=all_age_weighted),
                 svytable(~TOURETTE+ANY_STIM, design=all_age_weighted),
                 svytable(~GLAUCOMA+ANY_STIM, design=all_age_weighted),
-                svytable(~MAOI+ANY_STIM, design=all_age_weighted),
                 svytable(~HYPERTHYROIDISM+ANY_STIM, design=all_age_weighted),
-                
+                svytable(~MAOI+ANY_STIM, design=all_age_weighted),
                 
                 #concomitant medications
                 svytable(~NON_STIM+ANY_STIM, design=all_age_weighted))
 
-write.csv(table1_any,"table1_any.csv")
+#write.csv(table1_any,"table1_any.csv")
 
 
 table1_new <- rbind(#total
@@ -437,16 +439,16 @@ table1_new <- rbind(#total
                     svytable(~PREGNANT+NEW_STIM, design=all_age_weighted),
                     svytable(~TOURETTE+NEW_STIM, design=all_age_weighted),
                     svytable(~GLAUCOMA+NEW_STIM, design=all_age_weighted),
-                    svytable(~MAOI+NEW_STIM, design=all_age_weighted),
                     svytable(~HYPERTHYROIDISM+NEW_STIM, design=all_age_weighted),
+                    svytable(~MAOI+NEW_STIM, design=all_age_weighted),
                     
                     #concomitant medications
                     svytable(~NON_STIM+NEW_STIM, design=all_age_weighted))
 
-write.csv(table1_new,"table1_new.csv")
+#write.csv(table1_new,"table1_new.csv")
 
-write.csv(
-tidy(svyglm(ANY_STIM 
+
+write.csv(tidy(svyglm(ANY_STIM 
                ~YEAR+
                  MSA+
                  relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
@@ -466,15 +468,13 @@ tidy(svyglm(ANY_STIM
                  SUBSTAB+
                  PREGNANT+
                  GLAUCOMA+
-                 HYPERTHYRODISIM+
+                 HYPERTHYROIDISM+
                  MAOI,
                design = all_age_weighted,
                family=quasibinomial()), 
-     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
-"regression_any_stim.csv")
+     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), "regression-any_stim.csv")
 
-write.csv(
-tidy(svyglm(NEW_STIM 
+write.csv(tidy(svyglm(NEW_STIM 
                ~YEAR+
                  MSA+
                  relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
@@ -498,11 +498,9 @@ tidy(svyglm(NEW_STIM
                  MAOI, 
                design = all_age_weighted,
                family=quasibinomial()),
-     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
-"regression_new_stim.csv")
+     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),"regression-new_stim.csv")
 
-write.csv(
-tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
+write.csv(tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
                ~YEAR+
                  MSA+
                  relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
@@ -518,25 +516,9 @@ tidy(svyglm(ANY_CONTRAINDICATED_CONDITION
                  OTHPROV_RECODE,
                design = all_age_any_stim,
                family=quasibinomial()),
-     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
-"regression_inapp_rx.csv")
+     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),"regression-inapp_rx.csv")
 
-summary(svyglm(ANY_CONTRAINDICATED_CONDITION 
-               ~YEAR+
-                 MSA+
-                 relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
-                 relevel(factor(AGE_RECODE_3), ref = "18-30")+
-                 SEX+
-                 RACERETH+
-                 relevel(factor(PRIMCARE_RECODE), ref = "PCP")+
-                 MDDO_RECODE+
-                 PHYSASST_RECODE+
-                 NPNMW_RECODE+
-                 RNLPN_RECODE+
-                 relevel(factor(MHP_RECODE), ref = "No MHP")+
-                 OTHPROV_RECODE,
-               design = all_age_any_stim,
-               family=quasibinomial()))
+
 
 #### FIGURES ####
 
