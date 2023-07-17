@@ -519,7 +519,6 @@ write.csv(tidy(svyglm(ANY_CONTRAINDICATED_CONDITION
      exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),"regression-inapp_rx.csv")
 
 
-
 #### FIGURES ####
 
 ## Graph of the proportion of total visits with ANY stimulant rx, by year and age group

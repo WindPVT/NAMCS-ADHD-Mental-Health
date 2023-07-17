@@ -250,13 +250,17 @@ data_combined <- data_combined %>%
                                    YEAR == 2009 | YEAR == 2010  | YEAR == 2011 | YEAR == 2012 | YEAR == 2013~"2009-13")) %>% 
   mutate(YEAR_RECODE_3 = case_when(YEAR == 2018 | YEAR == 2016 | YEAR == 2015 ~ "2015-18",
                                    YEAR == 2014 | YEAR == 2013 | YEAR == 2012 ~ "2012-14",
-                                   YEAR == 2011 | YEAR == 2010 | YEAR == 2009 ~ "2009-11"))
+                                   YEAR == 2011 | YEAR == 2010 | YEAR == 2009 ~ "2009-11")) %>% 
+  mutate(RACERETH_RECODE = case_when(RACERETH == "Non-Hispanic White" ~ "White",
+                                     .default = "Non-White"))
 
 
 ### Define ICD-9 and ICD-10 codes for ADHD ###
 ADHD_ICD_codes <- c("F900","F901","F902","F908","F909", #these are ICD-10 codes
                     "314--","3140-","31400","31401","3141-","31410","3142-","31420","3148-","31480","3149-","31490") #these are ICD-9 codes
 
+Exclusion_ICD_codes <- c("G474","G4741","G47411","G47419","G4742","G47421","G47429","34700","3470-","347--","34701","34710","3471-","34711", #these are for narcolespsy
+                         "E66-", "E660", "E6601", "E6609", "E661", "E662", "E663", "E668", "E669", "278", "278--", "278-", "2780-", "27800", "27801", "27802", "27803")  #these are for obesity #these are for binge-eating disorder
 
 ### Define Multum Drug Category Code for Stimulants ###
 ADHD_stimulant_codes <- c(71)
@@ -282,8 +286,10 @@ ADHD_non_stimulant_codes <- c("d00259", #imipramine
 data_combined <- data_combined %>% 
   mutate(ADHD = case_when(DIAG1 %in% ADHD_ICD_codes | DIAG2 %in% ADHD_ICD_codes | DIAG3 %in% ADHD_ICD_codes | DIAG4 %in% ADHD_ICD_codes | DIAG5 %in% ADHD_ICD_codes ~1,
          .default = 0)) %>% 
-  mutate(STIMULANT = case_when((RX1CAT1 %in% ADHD_stimulant_codes | RX2CAT1 %in% ADHD_stimulant_codes | RX3CAT1 %in% ADHD_stimulant_codes | RX4CAT1 %in% ADHD_stimulant_codes | RX5CAT1 %in% ADHD_stimulant_codes | RX6CAT1 %in% ADHD_stimulant_codes | RX7CAT1 %in% ADHD_stimulant_codes | RX8CAT1 %in% ADHD_stimulant_codes | RX9CAT1 %in% ADHD_stimulant_codes | RX10CAT1 %in% ADHD_stimulant_codes | RX11CAT1 %in% ADHD_stimulant_codes | RX12CAT1 %in% ADHD_stimulant_codes | RX13CAT1 %in% ADHD_stimulant_codes | RX14CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX16CAT1 %in% ADHD_stimulant_codes | RX17CAT1 %in% ADHD_stimulant_codes | RX18CAT1 %in% ADHD_stimulant_codes | RX19CAT1 %in% ADHD_stimulant_codes | RX20CAT1 %in% ADHD_stimulant_codes | RX21CAT1 %in% ADHD_stimulant_codes | RX22CAT1 %in% ADHD_stimulant_codes | RX23CAT1 %in% ADHD_stimulant_codes | RX24CAT1 %in% ADHD_stimulant_codes | RX25CAT1 %in% ADHD_stimulant_codes | RX26CAT1 %in% ADHD_stimulant_codes | RX27CAT1 %in% ADHD_stimulant_codes | RX28CAT1 %in% ADHD_stimulant_codes | RX29CAT1 %in% ADHD_stimulant_codes | RX30CAT1 %in% ADHD_stimulant_codes |  
-                                        RX1CAT2 %in% ADHD_stimulant_codes | RX2CAT2 %in% ADHD_stimulant_codes | RX3CAT2 %in% ADHD_stimulant_codes | RX4CAT2 %in% ADHD_stimulant_codes | RX5CAT2 %in% ADHD_stimulant_codes | RX6CAT2 %in% ADHD_stimulant_codes | RX7CAT2 %in% ADHD_stimulant_codes | RX8CAT2 %in% ADHD_stimulant_codes | RX9CAT2 %in% ADHD_stimulant_codes | RX10CAT2 %in% ADHD_stimulant_codes | RX11CAT2 %in% ADHD_stimulant_codes | RX12CAT2 %in% ADHD_stimulant_codes | RX13CAT2 %in% ADHD_stimulant_codes | RX14CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX16CAT2 %in% ADHD_stimulant_codes | RX17CAT2 %in% ADHD_stimulant_codes | RX18CAT2 %in% ADHD_stimulant_codes | RX19CAT2 %in% ADHD_stimulant_codes | RX20CAT2 %in% ADHD_stimulant_codes | RX21CAT2 %in% ADHD_stimulant_codes | RX22CAT2 %in% ADHD_stimulant_codes | RX23CAT2 %in% ADHD_stimulant_codes | RX24CAT2 %in% ADHD_stimulant_codes | RX25CAT2 %in% ADHD_stimulant_codes | RX26CAT2 %in% ADHD_stimulant_codes | RX27CAT2 %in% ADHD_stimulant_codes | RX28CAT2 %in% ADHD_stimulant_codes | RX29CAT2 %in% ADHD_stimulant_codes | RX30CAT2) ~1,
+  mutate(EXCLUDE = case_when(DIAG1 %in% Exclusion_ICD_codes | DIAG2 %in% Exclusion_ICD_codes | DIAG3 %in% Exclusion_ICD_codes | DIAG4 %in% Exclusion_ICD_codes | DIAG5 %in% Exclusion_ICD_codes ~1,
+                                .default = 0)) %>% 
+  mutate(STIMULANT = case_when(((RX1CAT1 %in% ADHD_stimulant_codes | RX2CAT1 %in% ADHD_stimulant_codes | RX3CAT1 %in% ADHD_stimulant_codes | RX4CAT1 %in% ADHD_stimulant_codes | RX5CAT1 %in% ADHD_stimulant_codes | RX6CAT1 %in% ADHD_stimulant_codes | RX7CAT1 %in% ADHD_stimulant_codes | RX8CAT1 %in% ADHD_stimulant_codes | RX9CAT1 %in% ADHD_stimulant_codes | RX10CAT1 %in% ADHD_stimulant_codes | RX11CAT1 %in% ADHD_stimulant_codes | RX12CAT1 %in% ADHD_stimulant_codes | RX13CAT1 %in% ADHD_stimulant_codes | RX14CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX15CAT1 %in% ADHD_stimulant_codes | RX16CAT1 %in% ADHD_stimulant_codes | RX17CAT1 %in% ADHD_stimulant_codes | RX18CAT1 %in% ADHD_stimulant_codes | RX19CAT1 %in% ADHD_stimulant_codes | RX20CAT1 %in% ADHD_stimulant_codes | RX21CAT1 %in% ADHD_stimulant_codes | RX22CAT1 %in% ADHD_stimulant_codes | RX23CAT1 %in% ADHD_stimulant_codes | RX24CAT1 %in% ADHD_stimulant_codes | RX25CAT1 %in% ADHD_stimulant_codes | RX26CAT1 %in% ADHD_stimulant_codes | RX27CAT1 %in% ADHD_stimulant_codes | RX28CAT1 %in% ADHD_stimulant_codes | RX29CAT1 %in% ADHD_stimulant_codes | RX30CAT1 %in% ADHD_stimulant_codes |  
+                                        RX1CAT2 %in% ADHD_stimulant_codes | RX2CAT2 %in% ADHD_stimulant_codes | RX3CAT2 %in% ADHD_stimulant_codes | RX4CAT2 %in% ADHD_stimulant_codes | RX5CAT2 %in% ADHD_stimulant_codes | RX6CAT2 %in% ADHD_stimulant_codes | RX7CAT2 %in% ADHD_stimulant_codes | RX8CAT2 %in% ADHD_stimulant_codes | RX9CAT2 %in% ADHD_stimulant_codes | RX10CAT2 %in% ADHD_stimulant_codes | RX11CAT2 %in% ADHD_stimulant_codes | RX12CAT2 %in% ADHD_stimulant_codes | RX13CAT2 %in% ADHD_stimulant_codes | RX14CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX15CAT2 %in% ADHD_stimulant_codes | RX16CAT2 %in% ADHD_stimulant_codes | RX17CAT2 %in% ADHD_stimulant_codes | RX18CAT2 %in% ADHD_stimulant_codes | RX19CAT2 %in% ADHD_stimulant_codes | RX20CAT2 %in% ADHD_stimulant_codes | RX21CAT2 %in% ADHD_stimulant_codes | RX22CAT2 %in% ADHD_stimulant_codes | RX23CAT2 %in% ADHD_stimulant_codes | RX24CAT2 %in% ADHD_stimulant_codes | RX25CAT2 %in% ADHD_stimulant_codes | RX26CAT2 %in% ADHD_stimulant_codes | RX27CAT2 %in% ADHD_stimulant_codes | RX28CAT2 %in% ADHD_stimulant_codes | RX29CAT2 %in% ADHD_stimulant_codes | RX30CAT2)) ~1,
                                      .default = 0)) %>%  
   mutate(NON_STIM = case_when((DRUGID1 %in% ADHD_non_stimulant_codes | DRUGID2 %in% ADHD_non_stimulant_codes | DRUGID3 %in% ADHD_non_stimulant_codes | DRUGID4 %in% ADHD_non_stimulant_codes | DRUGID5 %in% ADHD_non_stimulant_codes | DRUGID6 %in% ADHD_non_stimulant_codes | DRUGID7 %in% ADHD_non_stimulant_codes | DRUGID8 %in% ADHD_non_stimulant_codes | DRUGID9 %in% ADHD_non_stimulant_codes | DRUGID10 %in% ADHD_non_stimulant_codes | DRUGID11 %in% ADHD_non_stimulant_codes | DRUGID12 %in% ADHD_non_stimulant_codes | DRUGID13 %in% ADHD_non_stimulant_codes | DRUGID14 %in% ADHD_non_stimulant_codes | DRUGID15 %in% ADHD_non_stimulant_codes | DRUGID16 %in% ADHD_non_stimulant_codes | DRUGID17 %in% ADHD_non_stimulant_codes | DRUGID18 %in% ADHD_non_stimulant_codes | DRUGID19 %in% ADHD_non_stimulant_codes | DRUGID20 %in% ADHD_non_stimulant_codes | DRUGID21 %in% ADHD_non_stimulant_codes | DRUGID22 %in% ADHD_non_stimulant_codes | DRUGID23 %in% ADHD_non_stimulant_codes | DRUGID24 %in% ADHD_non_stimulant_codes | DRUGID25 %in% ADHD_non_stimulant_codes | DRUGID26 %in% ADHD_non_stimulant_codes | DRUGID27 %in% ADHD_non_stimulant_codes | DRUGID28 %in% ADHD_non_stimulant_codes | DRUGID29 %in% ADHD_non_stimulant_codes | DRUGID30 %in% ADHD_non_stimulant_codes) ~1,
                                     .default = 0)) %>% 
@@ -295,11 +301,8 @@ data_combined <- data_combined %>%
                           .default = 0)) %>% 
   mutate(ANY_ADHD_MED = case_when((STIMULANT == 1 | NON_STIM == 1) ~1,
                                   .default = 0)) %>% 
-  mutate(COUNTER = 1)
+  mutate(COUNTER = 1) 
 
-data_combined %>% 
-  filter(AGE < 18) %>% 
-  summarise(n=n())
 
 #### WEIGHTING ####
 
@@ -331,6 +334,7 @@ data_combined %>%
     all_age_ADHD_weighted <- subset(all_age_weighted,ADHD==1)
     all_age_stim_weighted <- subset(weighting_design_namcs, (STIMULANT==1))
     
+    
 
 #### COHORT SUMMARY STATISTICS ####
 
@@ -360,6 +364,7 @@ table1
 ## Multivariable regression of factors associated with an ADHD diagnosis
     
     # All ages
+    summary(svyglm(ADHD~YEAR_RECODE+SEX+RACERETH+relevel(factor(AGE_RECODE_3), ref = "18-30")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_weighted,family=quasibinomial()))
         write.csv(tidy(svyglm(ADHD~YEAR_RECODE+SEX+RACERETH+relevel(factor(AGE_RECODE_3), ref = "18-30")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_weighted,family=quasibinomial()),conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE),"all_age_ADHD.csv")
     # 5-18
         write.csv(tidy(svyglm(ADHD~YEAR_RECODE+SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_weighted,family=quasibinomial()),conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE),"peds_ADHD.csv")
@@ -372,7 +377,7 @@ table1
         
     
 
-#### MEDICATION PRESCRIBING STATS ####
+#### MEDICATION PRESCRIBING ***WITH A CONCOMITANT ADHD DX CODE*** ####
 
 ## Function to create a graph of yearly ADHD medication prescribing
     Yearly_ADHD_Rx_Graph <- function(dataset,graph_title) {
@@ -418,20 +423,20 @@ table1
         # >65yo yearly ADHD prescribing -- NOTE: BASED ON ONLY 77 UNWEIGHTED VISITS, SO CIs ARE VERY WIDE
         Yearly_ADHD_Rx_Graph(geriatric_ADHD_weighted,"ADHD Prescribing Among >65yos")
         
-    
+
 ## Multivariable regression of factors associated with a stimulant prescription at a ADHD visit
     
     # All ages, with age as a covariate
-    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(AGE_RECODE), ref = "18-30")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_ADHD_weighted,family=quasibinomial()))
+    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+relevel(factor(RACERETH_RECODE), ref = "White")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_ADHD_weighted,family=quasibinomial()))
 
     # 5-18yo
-    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_ADHD_weighted,family=quasibinomial()))
+    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+relevel(factor(RACERETH_RECODE), ref = "White")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_ADHD_weighted,family=quasibinomial()))
     
     # 18-30yo
-    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=young_adult_ADHD_weighted,family=quasibinomial()))
+    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+relevel(factor(RACERETH_RECODE), ref = "White")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=young_adult_ADHD_weighted,family=quasibinomial()))
     
     # >30yo 
-    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=adult_ADHD_weighted,family=quasibinomial()))
+    summary(svyglm(STIMULANT~YEAR_RECODE+SEX+relevel(factor(RACERETH_RECODE), ref = "White")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=adult_ADHD_weighted,family=quasibinomial()))
     
 
 ## Multivariable regression of factors associated with a non-stimulant prescription at a ADHD visit
@@ -450,7 +455,7 @@ table1
     
 
     
-#### STIMULANT PRESCRIBING ***WITHOUT ADHD DX CODE*** ####
+#### STIMULANT PRESCRIBING ***WITHOUT A CONCOMITANT ADHD DX CODE*** ####
    
 ## Graph of the proportion of total visits with an stimulant rx, by year and age group
     stim_by_year <- svyby(~STIMULANT, ~YEAR+AGE_RECODE_3, all_age_weighted, na=TRUE, svymean) 
@@ -463,11 +468,45 @@ table1
       geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = AGE_RECODE_3), alpha=0.2)+
       labs(title = "Proportion of Total Visits with a Stimulant Rx, by Age Group", y = "Proportion of Total Visits With a Stimulant Rx", x = "Year")
     
+    
+yearly_ADHD_Stim <- function(dataset,graph_title) {
+  stim_by_year <- svyby(~STIMULANT, ~YEAR, dataset, na=TRUE, svymean) 
+  stim_by_year <- cbind(stim_by_year, confint(stim_by_year)) 
+  stim_by_year <- stim_by_year %>% 
+    mutate(CLASS = "STIM")
+  colnames(stim_by_year) <- c("YEAR", "PROP", "SE", "LOWER_CI", "UPPER_CI", "KEY")
+  
+  adhd_by_year <- svyby(~ADHD, ~YEAR, dataset, na=TRUE, svymean) 
+  adhd_by_year <- cbind(adhd_by_year, confint(adhd_by_year)) 
+  adhd_by_year <- adhd_by_year %>% 
+    mutate(CLASS = "ADHD")
+  colnames(adhd_by_year) <- c("YEAR", "PROP", "SE", "LOWER_CI", "UPPER_CI", "KEY")
+  a <- rbind(adhd_by_year, stim_by_year)
+  
+  ggplot(a, aes(x=YEAR, y=PROP, color=KEY)) +
+    geom_line() +
+    geom_point()+
+    geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = KEY), alpha=0.2)+
+    labs(title = graph_title, y = "Proportion of Total Visits", x = "Year")
+}
+
+yearly_ADHD_Stim(peds_weighted, "5-18")
+yearly_ADHD_Stim(young_adult_weighted, "18-30")
+yearly_ADHD_Stim(adult_weighted, "30-65")
+yearly_ADHD_Stim(geriatric_weighted, "65+")
+
+
+    
+    
+    
+    
+    
+    
 ## Multivariable logistic regression of factors associated with a stimulant prescription **WITHOUT AN ADHD DX CODE** ##
     
     # All ages
         write.csv(tidy(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(AGE_RECODE_3), ref = "18-30")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_weighted,family=quasibinomial()),conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE),"all_age_stim.csv")
-        #summary(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(AGE_RECODE_3), ref = "18-30")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_weighted,family=quasibinomial()))
+        summary(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(AGE_RECODE_3), ref = "18-30")+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=all_age_weighted,family=quasibinomial()))
     #5-18
         write.csv(tidy(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_weighted,family=quasibinomial()),conf.int = TRUE, conf.level = 0.95, exponentiate = TRUE),"peds_stim.csv")
         #summary(svyglm(STIMULANT~YEAR_RECODE+SEX+RACERETH+relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance"), design=peds_weighted,family=quasibinomial()))
@@ -499,7 +538,17 @@ stim_dx <- function(dataset) {
       arrange(Freq)
     colnames(dx3) <- c("Dx", "Freq3")
     
-    all_dx <- full_join(full_join(dx1,dx2),dx3)
+    dx4 <- svytable(~DIAG3, design = dataset)
+    dx4 <- as.data.frame(dx4) %>% 
+      arrange(Freq)
+    colnames(dx4) <- c("Dx", "Freq4")
+    
+    dx5 <- svytable(~DIAG3, design = dataset)
+    dx5 <- as.data.frame(dx4) %>% 
+      arrange(Freq)
+    colnames(dx5) <- c("Dx", "Freq5")
+    
+    all_dx <- full_join(full_join(full_join(full_join(dx1,dx2),dx3),dx4),dx5)
     all_dx %>% 
       rowwise() %>% 
       mutate(sum = sum(Freq1, Freq2, Freq3, na.rm = TRUE)) %>% 
