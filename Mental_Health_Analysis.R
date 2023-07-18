@@ -189,7 +189,3 @@ peds_data_combined$MAJOR = factor(peds_data_combined$MAJOR,
                                              "Preventive Care"))
 
 
-#### Yearly rate of mental health rxs
-
-
-
