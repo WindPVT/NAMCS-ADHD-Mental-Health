@@ -507,5 +507,5 @@ ggplot(inapp_stim_by_year, aes(x=YEAR, y=STIMULANT, color = AGE_RECODE_3))+
   geom_line()+
   geom_point()+
   geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = AGE_RECODE_3), alpha=0.2)+
-  labs(title = "Proportion of Total Visits with an Inappropriate Stimulant Rx, by Age Group", y = "Proportion of Total Visits With a NEW Stimulant Rx", x = "Year")
+  labs(y = "Proportion", x = "Year")
 
