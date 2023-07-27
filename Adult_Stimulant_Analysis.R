@@ -1,6 +1,7 @@
 #### LOAD PACKAGES ####
 library(haven)
 library(dplyr)
+library(tidyr)
 library(tidyverse)
 library(magrittr)
 library(ggplot2)
@@ -13,12 +14,16 @@ options(scipen=999)
 
 
 
+
 #### READ CSV FILES ####
 raw_data_2019 <- read.csv("Raw_Data/namcs2019.csv")
 raw_data_2018 <- read.csv("Raw_Data/namcs2018.csv")
 raw_data_2016 <- read.csv("Raw_Data/namcs2016.csv")
 raw_data_2015 <- read.csv("Raw_Data/namcs2015.csv")
 raw_data_2014 <- read.csv("Raw_Data/namcs2014.csv")
+raw_data_2013 <- read.csv("Raw_Data/namcs2013.csv")
+raw_data_2012 <- read.csv("Raw_Data/namcs2012.csv")
+
 
 
 
@@ -56,7 +61,7 @@ data_2018 <- raw_data_2018 %>%
          RX1CAT3,RX2CAT3,RX3CAT3,RX4CAT3,RX5CAT3,RX6CAT3,RX7CAT3,RX8CAT3,RX9CAT3,RX10CAT3,RX11CAT3,RX12CAT3,RX13CAT3,RX14CAT3,RX15CAT3,RX15CAT3,RX16CAT3,RX17CAT3,RX18CAT3,RX19CAT3,RX20CAT3,RX21CAT3,RX22CAT3,RX23CAT3,RX24CAT3,RX25CAT3,RX26CAT3,RX27CAT3,RX28CAT3,RX29CAT3,RX30CAT3,   # Drug Category 2
          DRUGID1,DRUGID2,DRUGID3,DRUGID4,DRUGID5,DRUGID6,DRUGID7,DRUGID8,DRUGID9,DRUGID10,DRUGID11,DRUGID12,DRUGID13,DRUGID14,DRUGID15,DRUGID16,DRUGID17,DRUGID18,DRUGID19,DRUGID20,DRUGID21,DRUGID22,DRUGID23,DRUGID24,DRUGID25,DRUGID26,DRUGID27,DRUGID28,DRUGID29,DRUGID30,   # Drug IDs
          NCMED1,NCMED2,NCMED3,NCMED4,NCMED5,NCMED6,NCMED7,NCMED8,NCMED9,NCMED10,NCMED11,NCMED12,NCMED12,NCMED13,NCMED14,NCMED15,NCMED16,NCMED17,NCMED18,NCMED19,NCMED20,NCMED21,NCMED22,NCMED23,NCMED24,NCMED25,NCMED26,NCMED27,NCMED28,NCMED29,NCMED30,   # New or continued
-         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,EWARNR,  # Provider characteristics
+         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,  # Provider characteristics
          CAD, # Coronary artery disease
          DEPRN, # Depression
          HTN, # Hypertension
@@ -78,7 +83,7 @@ data_2016 <- raw_data_2016 %>%
          RX1CAT3,RX2CAT3,RX3CAT3,RX4CAT3,RX5CAT3,RX6CAT3,RX7CAT3,RX8CAT3,RX9CAT3,RX10CAT3,RX11CAT3,RX12CAT3,RX13CAT3,RX14CAT3,RX15CAT3,RX15CAT3,RX16CAT3,RX17CAT3,RX18CAT3,RX19CAT3,RX20CAT3,RX21CAT3,RX22CAT3,RX23CAT3,RX24CAT3,RX25CAT3,RX26CAT3,RX27CAT3,RX28CAT3,RX29CAT3,RX30CAT3,   # Drug Category 2
          DRUGID1,DRUGID2,DRUGID3,DRUGID4,DRUGID5,DRUGID6,DRUGID7,DRUGID8,DRUGID9,DRUGID10,DRUGID11,DRUGID12,DRUGID13,DRUGID14,DRUGID15,DRUGID16,DRUGID17,DRUGID18,DRUGID19,DRUGID20,DRUGID21,DRUGID22,DRUGID23,DRUGID24,DRUGID25,DRUGID26,DRUGID27,DRUGID28,DRUGID29,DRUGID30,   # Drug IDs
          NCMED1,NCMED2,NCMED3,NCMED4,NCMED5,NCMED6,NCMED7,NCMED8,NCMED9,NCMED10,NCMED11,NCMED12,NCMED12,NCMED13,NCMED14,NCMED15,NCMED16,NCMED17,NCMED18,NCMED19,NCMED20,NCMED21,NCMED22,NCMED23,NCMED24,NCMED25,NCMED26,NCMED27,NCMED28,NCMED29,NCMED30,   # New or continued
-         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,EWARNR,  # Provider characteristics
+         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,  # Provider characteristics
          CAD, # Coronary artery disease
          DEPRN, # Depression
          HTN, # Hypertension
@@ -100,7 +105,7 @@ data_2015 <- raw_data_2015 %>%
          RX1CAT3,RX2CAT3,RX3CAT3,RX4CAT3,RX5CAT3,RX6CAT3,RX7CAT3,RX8CAT3,RX9CAT3,RX10CAT3,RX11CAT3,RX12CAT3,RX13CAT3,RX14CAT3,RX15CAT3,RX15CAT3,RX16CAT3,RX17CAT3,RX18CAT3,RX19CAT3,RX20CAT3,RX21CAT3,RX22CAT3,RX23CAT3,RX24CAT3,RX25CAT3,RX26CAT3,RX27CAT3,RX28CAT3,RX29CAT3,RX30CAT3,   # Drug Category 2
          DRUGID1,DRUGID2,DRUGID3,DRUGID4,DRUGID5,DRUGID6,DRUGID7,DRUGID8,DRUGID9,DRUGID10,DRUGID11,DRUGID12,DRUGID13,DRUGID14,DRUGID15,DRUGID16,DRUGID17,DRUGID18,DRUGID19,DRUGID20,DRUGID21,DRUGID22,DRUGID23,DRUGID24,DRUGID25,DRUGID26,DRUGID27,DRUGID28,DRUGID29,DRUGID30,   # Drug IDs
          NCMED1,NCMED2,NCMED3,NCMED4,NCMED5,NCMED6,NCMED7,NCMED8,NCMED9,NCMED10,NCMED11,NCMED12,NCMED12,NCMED13,NCMED14,NCMED15,NCMED16,NCMED17,NCMED18,NCMED19,NCMED20,NCMED21,NCMED22,NCMED23,NCMED24,NCMED25,NCMED26,NCMED27,NCMED28,NCMED29,NCMED30,   # New or continued
-         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,EWARNR,  # Provider characteristics
+         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,  # Provider characteristics
          CAD, # Coronary artery disease
          DEPRN, # Depression
          HTN, # Hypertension
@@ -122,7 +127,7 @@ data_2014 <- raw_data_2014 %>%
          RX1CAT3,RX2CAT3,RX3CAT3,RX4CAT3,RX5CAT3,RX6CAT3,RX7CAT3,RX8CAT3,RX9CAT3,RX10CAT3,RX11CAT3,RX12CAT3,RX13CAT3,RX14CAT3,RX15CAT3,RX15CAT3,RX16CAT3,RX17CAT3,RX18CAT3,RX19CAT3,RX20CAT3,RX21CAT3,RX22CAT3,RX23CAT3,RX24CAT3,RX25CAT3,RX26CAT3,RX27CAT3,RX28CAT3,RX29CAT3,RX30CAT3,   # Drug Category 2
          DRUGID1,DRUGID2,DRUGID3,DRUGID4,DRUGID5,DRUGID6,DRUGID7,DRUGID8,DRUGID9,DRUGID10,DRUGID11,DRUGID12,DRUGID13,DRUGID14,DRUGID15,DRUGID16,DRUGID17,DRUGID18,DRUGID19,DRUGID20,DRUGID21,DRUGID22,DRUGID23,DRUGID24,DRUGID25,DRUGID26,DRUGID27,DRUGID28,DRUGID29,DRUGID30,   # Drug IDs
          NCMED1,NCMED2,NCMED3,NCMED4,NCMED5,NCMED6,NCMED7,NCMED8,NCMED9,NCMED10,NCMED11,NCMED12,NCMED12,NCMED13,NCMED14,NCMED15,NCMED16,NCMED17,NCMED18,NCMED19,NCMED20,NCMED21,NCMED22,NCMED23,NCMED24,NCMED25,NCMED26,NCMED27,NCMED28,NCMED29,NCMED30,   # New or continued
-         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,EWARNR,  # Provider characteristics
+         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,  # Provider characteristics
          CAD, # Coronary artery disease
          DEPRN, # Depression
          HTN, # Hypertension
@@ -134,16 +139,51 @@ data_2014 <- raw_data_2014 %>%
   mutate(YEAR = 2014) %>% 
   droplevels() 
 
+#2013
+data_2013 <- raw_data_2013 %>% 
+  select(AGE, RACERETH, SEX, MSA, PAYTYPER,  # Demographic characteristics
+         DIAG1,DIAG2,DIAG3, # Diagnoses
+         PATWT, CSTRATM, CPSUM,  # Weighting
+         RX1CAT1,RX2CAT1,RX3CAT1,RX4CAT1,RX5CAT1,RX6CAT1,RX7CAT1,RX8CAT1,RX9CAT1,RX10CAT1,   # Drug Category 1
+         RX1CAT2,RX2CAT2,RX3CAT2,RX4CAT2,RX5CAT2,RX6CAT2,RX7CAT2,RX8CAT2,RX9CAT2,RX10CAT2,   # Drug Category 2
+         RX1CAT3,RX2CAT3,RX3CAT3,RX4CAT3,RX5CAT3,RX6CAT3,RX7CAT3,RX8CAT3,RX9CAT3,RX10CAT3,   # Drug Category 2
+         DRUGID1,DRUGID2,DRUGID3,DRUGID4,DRUGID5,DRUGID6,DRUGID7,DRUGID8,DRUGID9,DRUGID10,   # Drug IDs
+         NCMED1,NCMED2,NCMED3,NCMED4,NCMED5,NCMED6,NCMED7,NCMED8,NCMED9,NCMED10,   # New or continued
+         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,  # Provider characteristics
+         IHD, # Coronary artery disease
+         DEPRN, # Depression
+         HTN, # Hypertension
+         OBESITY, # Obesity
+         CEBVD, # Cerebrovascular Disease
+         PREGNANT) %>% # Pregnancy
+  mutate(YEAR = 2013) %>% 
+  droplevels() 
 
-data_combined %>% 
-  filter(AGE>=18) %>% 
-  summarise(n=n())
+#2012
+data_2012 <- raw_data_2012 %>% 
+  select(AGE, RACERETH, SEX, MSA, PAYTYPER,  # Demographic characteristics
+         DIAG1,DIAG2,DIAG3, # Diagnoses
+         PATWT, CSTRATM, CPSUM,  # Weighting
+         RX1CAT1,RX2CAT1,RX3CAT1,RX4CAT1,RX5CAT1,RX6CAT1,RX7CAT1,RX8CAT1,RX9CAT1,RX10CAT1,   # Drug Category 1
+         RX1CAT2,RX2CAT2,RX3CAT2,RX4CAT2,RX5CAT2,RX6CAT2,RX7CAT2,RX8CAT2,RX9CAT2,RX10CAT2,   # Drug Category 2
+         RX1CAT3,RX2CAT3,RX3CAT3,RX4CAT3,RX5CAT3,RX6CAT3,RX7CAT3,RX8CAT3,RX9CAT3,RX10CAT3,   # Drug Category 2
+         DRUGID1,DRUGID2,DRUGID3,DRUGID4,DRUGID5,DRUGID6,DRUGID7,DRUGID8,DRUGID9,DRUGID10,   # Drug IDs
+         NCMED1,NCMED2,NCMED3,NCMED4,NCMED5,NCMED6,NCMED7,NCMED8,NCMED9,NCMED10,   # New or continued
+         MDDO,PRIMCARE,PHYSASST,NPNMW,MHP,OTHPROV,RNLPN,PHYS,  # Provider characteristics
+         IHD, # Coronary artery disease
+         DEPRN, # Depression
+         HTN, # Hypertension
+         OBESITY, # Obesity
+         CEBVD, # Cerebrovascular Disease
+         PREGNANT) %>% # Pregnancy
+  mutate(YEAR = 2012) %>% 
+  droplevels() 
 
 
 #### MERGE AND REFORMAT THE DATASET: RENAME, GROUP, AND ADD VARIABLES ####
 
 ### Merge each year's dataset ###
-data_combined <- full_join(full_join(full_join(full_join(data_2014,data_2015),data_2016),data_2018),data_2019)
+data_combined <- full_join(full_join(full_join(full_join(full_join(full_join(data_2014,data_2015),data_2016),data_2018),data_2019),data_2013),data_2012)
 
 ### Rename continuous variable codes ###
 data_combined$RACERETH = factor(data_combined$RACERETH,
@@ -228,7 +268,7 @@ data_combined <- data_combined %>%
                                   AGE>=65 ~ ">65")) %>% 
   
   
-  # Create grouped categorical variables and convert the numbers to the correponding text
+  # Create grouped categorical variables and convert the numbers to the corresponding text
   mutate(PAYTYPER_RECODE = case_when(PAYTYPER == 1 ~"Private Insurance",
                                      PAYTYPER == 2 | PAYTYPER == 3 ~"Public Insurance",
                                      .default = "Other/Unknown")) %>%
@@ -284,14 +324,20 @@ data_combined <- data_combined %>%
   
   
   # Create binary (0/1) variables for the occurrence of condition codes of interest in the data
-  mutate(ADHD = case_when(DIAG1 %in% ADHD_ICD_codes | DIAG2 %in% ADHD_ICD_codes | DIAG3 %in% ADHD_ICD_codes | DIAG4 %in% ADHD_ICD_codes | DIAG5 %in% ADHD_ICD_codes ~"ADHD Dx Code",
-                          .default = "No ADHD Dx Code")) %>% 
+  mutate(CAD_RECODE = case_when(CAD==1 | IHD==1 ~1,
+                                .default = 0)) %>% 
   
-  mutate(NARCOLEPSY = case_when(DIAG1 %in% Narcolepsy_ICD_codes | DIAG2 %in% Narcolepsy_ICD_codes | DIAG3 %in% Narcolepsy_ICD_codes | DIAG4 %in% Narcolepsy_ICD_codes | DIAG5 %in% Narcolepsy_ICD_codes ~"Narcolepsy Dx Code",
-                          .default = "No Narcolepsy Dx Code")) %>% 
+  mutate(PREGNANT_RECODE = case_when(PREGNANT==1 ~1,
+                                .default = 0)) %>% 
   
-  mutate(BINGE_EATING = case_when(DIAG1 %in% Binge_Eating_ICD_codes | DIAG2 %in% Binge_Eating_ICD_codes | DIAG3 %in% Binge_Eating_ICD_codes | DIAG4 %in% Binge_Eating_ICD_codes | DIAG5 %in% Binge_Eating_ICD_codes ~"Binge Eating Disorder",
-                                .default = "No Binge Eating Dx Code")) %>% 
+  mutate(ADHD = case_when(DIAG1 %in% ADHD_ICD_codes | DIAG2 %in% ADHD_ICD_codes | DIAG3 %in% ADHD_ICD_codes | DIAG4 %in% ADHD_ICD_codes | DIAG5 %in% ADHD_ICD_codes ~1,
+                          .default = 0)) %>% 
+  
+  mutate(NARCOLEPSY = case_when(DIAG1 %in% Narcolepsy_ICD_codes | DIAG2 %in% Narcolepsy_ICD_codes | DIAG3 %in% Narcolepsy_ICD_codes | DIAG4 %in% Narcolepsy_ICD_codes | DIAG5 %in% Narcolepsy_ICD_codes ~1,
+                          .default = 0)) %>% 
+  
+  mutate(BINGE_EATING = case_when(DIAG1 %in% Binge_Eating_ICD_codes | DIAG2 %in% Binge_Eating_ICD_codes | DIAG3 %in% Binge_Eating_ICD_codes | DIAG4 %in% Binge_Eating_ICD_codes | DIAG5 %in% Binge_Eating_ICD_codes ~1,
+                                .default = 0)) %>% 
   
   mutate(TOURETTE = case_when(DIAG1 %in% Tourette_ICD_codes | DIAG2 %in% Tourette_ICD_codes | DIAG3 %in% Tourette_ICD_codes | DIAG4 %in% Tourette_ICD_codes | DIAG5 %in% Tourette_ICD_codes ~1,
                                 .default = 0)) %>% 
@@ -307,8 +353,12 @@ data_combined <- data_combined %>%
   
   
   # Create a binary (0/1) variable for the occurrence of ANY contraindicated condition or medication
-  mutate(ANY_CONTRAINDICATED_CONDITION = case_when(CAD == 1 | CEBVD == 1 | HTN == 1 | SUBSTAB == 1 | PREGNANT== 1 | TOURETTE == 1 | GLAUCOMA == 1 | HYPERTHYROIDISM ==1 | MAOI == 1 ~1,
-                                                    .default = 0))
+  mutate(ANY_CONTRAINDICATED_CONDITION = case_when(CAD_RECODE == 1 | CEBVD == 1 | HTN == 1 | SUBSTAB == 1 | PREGNANT_RECODE== 1 | TOURETTE == 1 | GLAUCOMA == 1 | HYPERTHYROIDISM ==1 | MAOI == 1 ~1,
+                                                    .default = 0)) %>% 
+  
+  # Create a variable for the number of contraindications
+  mutate(NUM_CONTRAINDICATIONS = CAD_RECODE+CEBVD+HTN+TOURETTE+replace_na(SUBSTAB,0)+GLAUCOMA+PREGNANT_RECODE+HYPERTHYROIDISM+MAOI)
+
 
 
 
@@ -317,212 +367,329 @@ data_combined <- data_combined %>%
 ### Define survey design ###
 weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,data=data_combined,nest=TRUE)
 
+
 ### Subset the weighted dataset ###
 
   ## Subset by Age ##
   all_age_weighted <- subset(weighting_design_namcs,AGE>=18)
-  ya_weighted <- subset(all_age_weighted,(AGE <30))
-  adult_weighted <- subset(all_age_weighted,(AGE>=30 & AGE <65))
-  ger_weighted <- subset(all_age_weighted,(AGE>=65))
-
-  ## Subset by Age and Prevalent Stimulant Rx ##
   all_age_any_stim <- subset(all_age_weighted,ANY_STIM==1)
-  ya_any_stim <- subset(ya_weighted,ANY_STIM==1)
-  adult_any_stim <- subset(adult_weighted,ANY_STIM==1)
-  ger_any_stim <- subset(ger_weighted,ANY_STIM==1)
-
-  ## Subset by Age and New Stimulant Rx ##
   all_age_new_stim <- subset(all_age_weighted,NEW_STIM==1)
-  ya_new_stim <- subset(ya_weighted,NEW_STIM==1)
-  adult_new_stim <- subset(adult_weighted,NEW_STIM==1)
-  ger_new_stim <- subset(ger_weighted,NEW_STIM==1)
+
+  
+  
+
+#### DESCRIPTIVE DATA ####
+
+### Unweighted total number of visits ###
+  
+      data_combined %>% 
+        filter(AGE>=18) %>% 
+        summarise(n=n())
+  
+  svytable(~ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim)
+  
+
+### Descriptive table for prevalent prescriptions ###
+  
+      table_one_any <- svyCreateTableOne(vars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                        "AGE_RECODE_3","SEX","RACERETH",
+                                        "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
+                                        "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                        "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                        "NON_STIM"),
+                               strata = "ANY_STIM", 
+                               data = all_age_weighted, 
+                               factorVars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                              "AGE_RECODE_3","SEX","RACERETH",
+                                              "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
+                                              "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                              "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                              "NON_STIM"))
+      write.csv(print(table_one_any, format="f", noSpaces=TRUE, quote=FALSE, test=FALSE, showAllLevels=FALSE),"table_one_any.csv")
+
+### Descriptive table for new prescriptions ###
+    
+      table_one_new <- svyCreateTableOne(vars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                                  "AGE_RECODE_3","SEX","RACERETH",
+                                                  "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
+                                                  "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                                  "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                                  "NON_STIM"),
+                                         strata = "NEW_STIM", 
+                                         data = all_age_weighted, 
+                                         factorVars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                                        "AGE_RECODE_3","SEX","RACERETH",
+                                                        "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
+                                                        "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                                        "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                                        "NON_STIM"))
+      write.csv(print(table_one_new, format="f", noSpaces=TRUE, quote=FALSE, showAllLevels=FALSE),"table_one_new.csv")
 
 
-#### TABLES 1 DATA ####
+      
+      
+#### PREDICTORS OF STIMULANT PRESCRIBING ####
 
-### Create a descriptive table for prevalent stimulant prescriptions ###
-table1_any <- rbind(# Visit characteristics
-                    svytable(~YEAR+ANY_STIM, design=all_age_weighted),
-                    svytable(~MSA+ANY_STIM, design=all_age_weighted),
-                    svytable(~PAYTYPER_RECODE+ANY_STIM, design=all_age_weighted),
-                # Patient characteristics
-                    svytable(~AGE_RECODE_3+ANY_STIM, design=all_age_weighted),
-                    svytable(~SEX+ANY_STIM, design=all_age_weighted),
-                    svytable(~RACERETH+ANY_STIM, design=all_age_weighted),
-                # HCP characteristics
-                    svytable(~PRIMCARE_RECODE+ANY_STIM,  design=all_age_weighted),
-                    svytable(~MDDO_RECODE+ANY_STIM,  design=all_age_weighted),
-                    svytable(~PHYSASST_RECODE+ANY_STIM,  design=all_age_weighted),
-                    svytable(~NPNMW_RECODE+ANY_STIM,  design=all_age_weighted),
-                    svytable(~RNLPN_RECODE+ANY_STIM, design=all_age_weighted),
-                    svytable(~MHP_RECODE+ANY_STIM, design=all_age_weighted),
-                    svytable(~OTHPROV_RECODE+ANY_STIM,  design=all_age_weighted),
-                # Indicated conditions
-                    svytable(~ADHD+ANY_STIM, design=all_age_weighted),
-                    svytable(~NARCOLEPSY+ANY_STIM, design=all_age_weighted),
-                    svytable(~BINGE_EATING+ANY_STIM, design=all_age_weighted),
-                    svytable(~OBESITY+ANY_STIM, design=all_age_weighted),
-                # Contraindicated conditions
-                    svytable(~ANY_CONTRAINDICATED_CONDITION+ANY_STIM, design=all_age_weighted),
-                    svytable(~CAD+ANY_STIM, design=all_age_weighted),
-                    svytable(~CEBVD+ANY_STIM, design=all_age_weighted),
-                    svytable(~HTN+ANY_STIM, design=all_age_weighted),
-                    svytable(~SUBSTAB+ANY_STIM, design=all_age_weighted),
-                    svytable(~PREGNANT+ANY_STIM, design=all_age_weighted),
-                    svytable(~TOURETTE+ANY_STIM, design=all_age_weighted),
-                    svytable(~GLAUCOMA+ANY_STIM, design=all_age_weighted),
-                    svytable(~HYPERTHYROIDISM+ANY_STIM, design=all_age_weighted),
-                    svytable(~MAOI+ANY_STIM, design=all_age_weighted),
-                # Concomitant medications
-                    svytable(~NON_STIM+ANY_STIM, design=all_age_weighted))
-write.csv(table1_any,"table1_any.csv")
+## Prevalent prescription ##
 
-### Create a descriptive table for NEW stimulant prescriptions ###
-table1_new <- rbind(# Visit characteristics
-                    svytable(~YEAR+NEW_STIM, design=all_age_weighted),
-                    svytable(~MSA+NEW_STIM, design=all_age_weighted),
-                    svytable(~PAYTYPER_RECODE+NEW_STIM, design=all_age_weighted),
-                # Patient characteristics
-                    svytable(~AGE_RECODE_3+NEW_STIM, design=all_age_weighted),
-                    svytable(~SEX+NEW_STIM, design=all_age_weighted),
-                    svytable(~RACERETH+NEW_STIM, design=all_age_weighted),
-                # HCP characteristics
-                    svytable(~PRIMCARE_RECODE+NEW_STIM,  design=all_age_weighted),
-                    svytable(~MDDO_RECODE+NEW_STIM,  design=all_age_weighted),
-                    svytable(~PHYSASST_RECODE+NEW_STIM,  design=all_age_weighted),
-                    svytable(~NPNMW_RECODE+NEW_STIM,  design=all_age_weighted),
-                    svytable(~RNLPN_RECODE+NEW_STIM, design=all_age_weighted),
-                    svytable(~MHP_RECODE+NEW_STIM, design=all_age_weighted),
-                    svytable(~OTHPROV_RECODE+NEW_STIM,  design=all_age_weighted),
-                # Indicated conditions
-                    svytable(~ADHD+NEW_STIM, design=all_age_weighted),
-                    svytable(~NARCOLEPSY+NEW_STIM, design=all_age_weighted),
-                    svytable(~BINGE_EATING+NEW_STIM, design=all_age_weighted),
-                    svytable(~OBESITY+NEW_STIM, design=all_age_weighted),
-                # Contraindicated conditions
-                    svytable(~ANY_CONTRAINDICATED_CONDITION+NEW_STIM, design=all_age_weighted),
-                    svytable(~CAD+NEW_STIM, design=all_age_weighted),
-                    svytable(~CEBVD+NEW_STIM, design=all_age_weighted),
-                    svytable(~HTN+NEW_STIM, design=all_age_weighted),
-                    svytable(~SUBSTAB+NEW_STIM, design=all_age_weighted),
-                    svytable(~PREGNANT+NEW_STIM, design=all_age_weighted),
-                    svytable(~TOURETTE+NEW_STIM, design=all_age_weighted),
-                    svytable(~GLAUCOMA+NEW_STIM, design=all_age_weighted),
-                    svytable(~HYPERTHYROIDISM+NEW_STIM, design=all_age_weighted),
-                    svytable(~MAOI+NEW_STIM, design=all_age_weighted),
-                # Concomitant medications
-                    svytable(~NON_STIM+NEW_STIM, design=all_age_weighted))
-write.csv(table1_new,"table1_new.csv")
+      rx_any <- rbind(# Visit characteristics
+                            svytable(~YEAR+ANY_STIM, design=all_age_weighted),
+                            svytable(~MSA+ANY_STIM, design=all_age_weighted),
+                            svytable(~PAYTYPER_RECODE+ANY_STIM, design=all_age_weighted),
+                            # Patient characteristics
+                            svytable(~AGE_RECODE_3+ANY_STIM, design=all_age_weighted),
+                            svytable(~SEX+ANY_STIM, design=all_age_weighted),
+                            svytable(~RACERETH+ANY_STIM, design=all_age_weighted),
+                            # HCP characteristics
+                            svytable(~PRIMCARE_RECODE+ANY_STIM,  design=all_age_weighted),
+                            svytable(~MDDO_RECODE+ANY_STIM,  design=all_age_weighted),
+                            svytable(~PHYSASST_RECODE+ANY_STIM,  design=all_age_weighted),
+                            svytable(~NPNMW_RECODE+ANY_STIM,  design=all_age_weighted),
+                            svytable(~RNLPN_RECODE+ANY_STIM, design=all_age_weighted),
+                            svytable(~MHP_RECODE+ANY_STIM, design=all_age_weighted),
+                            svytable(~OTHPROV_RECODE+ANY_STIM,  design=all_age_weighted),
+                            # Contraindications
+                            svytable(~CAD_RECODE+ANY_STIM,  design=all_age_weighted),
+                            svytable(~CEBVD+ANY_STIM,  design=all_age_weighted),
+                            svytable(~HTN+ANY_STIM,  design=all_age_weighted),
+                            svytable(~SUBSTAB+ANY_STIM,  design=all_age_weighted),
+                            svytable(~PREGNANT+ANY_STIM, design=all_age_weighted),
+                            svytable(~GLAUCOMA+ANY_STIM, design=all_age_weighted),
+                            svytable(~HYPERTHYROIDISM+ANY_STIM,  design=all_age_weighted),
+                            svytable(~MAOI+ANY_STIM,  design=all_age_weighted))
+      write.csv(rx_any,"rx_any.csv")
 
+      write.csv(tidy(svyglm(ANY_STIM 
+                       ~factor(YEAR)+
+                       MSA+
+                       relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
+                       relevel(factor(AGE_RECODE_3), ref = "18-30")+
+                       SEX+
+                       RACERETH+
+                       relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
+                       MDDO_RECODE+
+                       PHYSASST_RECODE+
+                       NPNMW_RECODE+
+                       RNLPN_RECODE+
+                       relevel(factor(MHP_RECODE), ref = "No MHP")+
+                       OTHPROV_RECODE+
+                       CAD_RECODE+
+                       CEBVD+
+                       HTN+
+                       #SUBSTAB+
+                       PREGNANT_RECODE+
+                       GLAUCOMA+
+                       HYPERTHYROIDISM+
+                       MAOI,
+                     design = all_age_weighted,
+                     family=quasibinomial()),
+           exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
+        "regression-any_stim.csv")
 
+## New prescription ##
 
-#### REGRESSIONS ####
+      rx_new <- rbind(# Visit characteristics
+                      svytable(~YEAR+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~MSA+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~PAYTYPER_RECODE+NEW_STIM_BINARY, design=all_age_weighted),
+                      # Patient characteristics
+                      svytable(~AGE_RECODE_3+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~SEX+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~RACERETH+NEW_STIM_BINARY, design=all_age_weighted),
+                      # HCP characteristics
+                      svytable(~PRIMCARE_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~MDDO_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~PHYSASST_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~NPNMW_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~RNLPN_RECODE+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~MHP_RECODE+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~OTHPROV_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
+                      # Contraindications
+                      svytable(~CAD_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~CEBVD+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~HTN+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~SUBSTAB+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~PREGNANT+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~GLAUCOMA+NEW_STIM_BINARY, design=all_age_weighted),
+                      svytable(~HYPERTHYROIDISM+NEW_STIM_BINARY,  design=all_age_weighted),
+                      svytable(~MAOI+NEW_STIM_BINARY,  design=all_age_weighted))
+      write.csv(rx_new,"rx_new.csv")
 
-### Multivariable logistic regression of factors associated with a prevalent stimulant prescription ###
-write.csv(
-  tidy(svyglm(ANY_STIM ~factor(YEAR)+
-                 MSA+
-                 relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
-                 #relevel(factor(AGE_RECODE_3), ref = "18-30")+
-                 SEX+
-                 RACERETH+
-                 relevel(factor(PRIMCARE_RECODE), ref = "PCP")+
-                 MDDO_RECODE+
-                 PHYSASST_RECODE+
-                 NPNMW_RECODE+
-                 RNLPN_RECODE+
-                 relevel(factor(MHP_RECODE), ref = "No MHP")+
-                 OTHPROV_RECODE+
-                 CAD+
-                 CEBVD+
-                 HTN+
-                 SUBSTAB+
-                 PREGNANT+
-                 GLAUCOMA+
-                 HYPERTHYROIDISM+
-                 MAOI,
-               design = all_age_weighted,
-               family=quasibinomial()),
-     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
-  "regression-any_stim.csv")
-
-
-### Multivariable logistic regression of factors associated with a NEW stimulant prescription ###
-write.csv(
-  tidy(svyglm(NEW_STIM_BINARY 
-              ~factor(YEAR)+
-                MSA+
-                relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
-                relevel(factor(AGE_RECODE_3), ref = "18-30")+
-                SEX+
-                RACERETH+
-                relevel(factor(PRIMCARE_RECODE), ref = "PCP")+
-                MDDO_RECODE+
-                PHYSASST_RECODE+
-                NPNMW_RECODE+
-                RNLPN_RECODE+
-                relevel(factor(MHP_RECODE), ref = "No MHP")+
-                OTHPROV_RECODE+
-                CAD+
-                CEBVD+
-                HTN+
-                SUBSTAB+
-                PREGNANT+
-                GLAUCOMA+
-                HYPERTHYROIDISM+
-                MAOI,
-              design = all_age_weighted,
-              family=quasibinomial()), 
-      exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
-  "regression-new_stim.csv")
+      write.csv(tidy(svyglm(NEW_STIM_BINARY 
+                    ~factor(YEAR)+
+                      MSA+
+                      relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
+                      relevel(factor(AGE_RECODE_3), ref = "18-30")+
+                      SEX+
+                      RACERETH+
+                      relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
+                      MDDO_RECODE+
+                      PHYSASST_RECODE+
+                      NPNMW_RECODE+
+                      RNLPN_RECODE+
+                      relevel(factor(MHP_RECODE), ref = "No MHP")+
+                      OTHPROV_RECODE+
+                      CAD_RECODE+
+                      CEBVD+
+                      HTN+
+                      #SUBSTAB+
+                      PREGNANT_RECODE+
+                      #GLAUCOMA+
+                      HYPERTHYROIDISM,
+                      #MAOI
+                    design = all_age_weighted,
+                    family=quasibinomial()), 
+            exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
+        "regression-new_stim.csv")
+      
 
 
-### Multivariable logistic regression of factors associated with a potentially inappropriate prevalent stimulant prescription ###
-write.csv(
-  tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
-             ~factor(YEAR)+
-               MSA+EWARNR+
-               relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
-               relevel(factor(AGE_RECODE_3), ref = "18-30")+
-               SEX+
-               RACERETH+
-               relevel(factor(PRIMCARE_RECODE), ref = "PCP")+
-               MDDO_RECODE+
-               PA_ALONE+
-               NPNMW_RECODE+
-               RNLPN_RECODE+
-               relevel(factor(MHP_RECODE), ref = "No MHP")+
-               OTHPROV_RECODE,
-             design = all_age_any_stim,
-             family=quasibinomial()), 
-       exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
-  "regression-inapp_rx_any.csv")
+#### SENSITIVITY ANALYSIS WITH SUBSTAB ####
+      
+## Prevalent prescription ##
+      
+      write.csv(tidy(svyglm(ANY_STIM 
+                            ~factor(YEAR)+
+                              MSA+
+                              relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
+                              relevel(factor(AGE_RECODE_3), ref = "18-30")+
+                              SEX+
+                              RACERETH+
+                              relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
+                              MDDO_RECODE+
+                              PHYSASST_RECODE+
+                              NPNMW_RECODE+
+                              RNLPN_RECODE+
+                              relevel(factor(MHP_RECODE), ref = "No MHP")+
+                              OTHPROV_RECODE+
+                              CAD_RECODE+
+                              CEBVD+
+                              HTN+
+                              #SUBSTAB+
+                              PREGNANT_RECODE+
+                              GLAUCOMA+
+                              HYPERTHYROIDISM+
+                              MAOI,
+                            design = all_age_weighted,
+                            family=quasibinomial()),
+                     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
+                "regression-any_stim.csv")
+      
+## New prescription ##
+      
+      write.csv(tidy(svyglm(NEW_STIM_BINARY 
+                            ~factor(YEAR)+
+                              MSA+
+                              relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
+                              relevel(factor(AGE_RECODE_3), ref = "18-30")+
+                              SEX+
+                              RACERETH+
+                              relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
+                              MDDO_RECODE+
+                              PHYSASST_RECODE+
+                              NPNMW_RECODE+
+                              RNLPN_RECODE+
+                              relevel(factor(MHP_RECODE), ref = "No MHP")+
+                              OTHPROV_RECODE+
+                              CAD_RECODE+
+                              CEBVD+
+                              HTN+
+                              #SUBSTAB+
+                              PREGNANT_RECODE+
+                              #GLAUCOMA+
+                              HYPERTHYROIDISM,
+                            #MAOI
+                            design = all_age_weighted,
+                            family=quasibinomial()), 
+                     exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
+                "regression-new_stim.csv")
+      
+      
+      
+      
+#### PREDICTORS OF INAPPROPRIATE PRESCRIBING ####
+
+## Prevalent inappropriate prescription ##
+
+      inap_rx_any <- rbind(# Visit characteristics
+                            svytable(~YEAR+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                            svytable(~MSA+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                            svytable(~PAYTYPER_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                            # Patient characteristics
+                            svytable(~AGE_RECODE_3+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                            svytable(~SEX+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                            svytable(~RACERETH+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                             # HCP characteristics
+                            svytable(~PRIMCARE_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
+                            svytable(~MDDO_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
+                            svytable(~PHYSASST_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
+                            svytable(~NPNMW_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
+                            svytable(~RNLPN_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                            svytable(~MHP_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
+                            svytable(~OTHPROV_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim))
+      write.csv(inap_rx_any,"inap_rx_any.csv")
+      
+      write.csv(tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
+                    ~factor(YEAR)+
+                      MSA+
+                      relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
+                      relevel(factor(AGE_RECODE_3), ref = "18-30")+
+                      SEX+
+                      RACERETH+
+                      relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
+                      MDDO_RECODE+
+                      PHYSASST_RECODE+
+                      NPNMW_RECODE+
+                      RNLPN_RECODE+
+                      relevel(factor(MHP_RECODE), ref = "No MHP")+
+                      OTHPROV_RECODE,
+                    design = all_age_any_stim,
+                    family=quasibinomial()), 
+             exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
+        "regression-inapp_rx_any.csv")
+      
+
+## New inappropriate prescription ##
+
+      inap_rx_new <- rbind(# Visit characteristics
+                            svytable(~YEAR+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            svytable(~MSA+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            svytable(~PAYTYPER_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            # Patient characteristics
+                            svytable(~AGE_RECODE_3+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            svytable(~SEX+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            svytable(~RACERETH+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            # HCP characteristics
+                            svytable(~PRIMCARE_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
+                            svytable(~MDDO_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
+                            svytable(~PHYSASST_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
+                            svytable(~NPNMW_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
+                            svytable(~RNLPN_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            svytable(~MHP_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
+                            svytable(~OTHPROV_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim))
+      write.csv(inap_rx_new,"inap_rx_new.csv")
+
+      write.csv(tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
+                    ~factor(YEAR)+
+                      MSA+
+                      relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
+                      relevel(factor(AGE_RECODE_3), ref = "18-30")+
+                      SEX+
+                      RACERETH+
+                      relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
+                      MDDO_RECODE+
+                      PHYSASST_RECODE+
+                      NPNMW_RECODE+
+                      RNLPN_RECODE+
+                      relevel(factor(MHP_RECODE), ref = "No MHP")+
+                      OTHPROV_RECODE,
+                    design = all_age_new_stim,
+                    family=quasibinomial()), 
+              exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
+      "regression-inapp_rx_new.csv")
 
 
-
-### Multivariable logistic regression of factors associated with a potentially inappropriate NEW stimulant prescription ###
-write.csv(
-  tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
-              ~factor(YEAR)+
-                MSA+
-                relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
-                #relevel(factor(AGE_RECODE_3), ref = "18-30")+
-                SEX+
-                RACERETH+
-                relevel(factor(PRIMCARE_RECODE), ref = "PCP")+
-                MDDO_RECODE+
-                PHYSASST_RECODE+
-                NPNMW_RECODE+
-                RNLPN_RECODE+
-                relevel(factor(MHP_RECODE), ref = "No MHP")+
-                OTHPROV_RECODE,
-              design = ya_new_stim,
-              family=quasibinomial()), 
-        exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
-"regression-inapp_rx_new.csv")
-
-svymean(~ANY_CONTRAINDICATED_CONDITION+AGE_RECODE_3, design = all_age_any_stim)
-
+      
 
 #### FIGURES ####
 
@@ -547,17 +714,22 @@ ggplot(new_stim_by_year, aes(x=YEAR, y=STIMULANT, color = AGE_RECODE_3))+
   geom_line()+
   geom_point()+
   geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = AGE_RECODE_3), alpha=0.2)+
-  labs(title = "Proportion of Total Visits with a NEW Stimulant Prescription, by Age Group", y = "Proportion of Total Visits With a NEW Stimulant Rx", x = "Year")
+  labs(y = "Proportion of Total Visits With a NEW Stimulant Prescription", x = "Year")
 
 
-### Graph of the proportion of total visits with an inappropriate stimulant prescription, by year and age group ###
-inapp_stim_by_year <- svyby(~ANY_CONTRAINDICATED_CONDITION, ~YEAR+AGE_RECODE_3, all_age_any_stim, na=TRUE, svymean) 
+### Graph of the proportion of total visits with an inappropriate stimulant prescription, by year ###
+inapp_stim_by_year <- svyby(~ANY_CONTRAINDICATED_CONDITION, ~YEAR, all_age_new_stim, na=TRUE, svymean) 
 inapp_stim_by_year <- cbind(inapp_stim_by_year, confint(inapp_stim_by_year))
-colnames(inapp_stim_by_year) <- c("YEAR", "AGE_RECODE_3", "STIMULANT", "SE", "LOWER_CI", "UPPER_CI")
+colnames(inapp_stim_by_year) <- c("YEAR", "STIMULANT", "SE", "LOWER_CI", "UPPER_CI")
 
-ggplot(inapp_stim_by_year, aes(x=YEAR, y=STIMULANT, color = AGE_RECODE_3))+
+ggplot(inapp_stim_by_year, aes(x=YEAR, y=STIMULANT))+
   geom_line()+
   geom_point()+
-  geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI, fill = AGE_RECODE_3), alpha=0.2)+
-  labs(y = "Proportion", x = "Year")
+  geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI), alpha=0.2)+
+  labs(y = "Proportion of Stimulant Prescriptions that are Potentially Inappropriate", x = "Year")+
+  theme(panel.background = element_rect(fill = 'white'))+
+  theme(axis.line.x.bottom=element_line(color="black"))+
+  theme(axis.line.y.left=element_line(color="black"))+
+  scale_x_continuous(breaks=c(2012,2013,2014,2015,2016,2017,2018,2019))+
+  scale_y_continuous(breaks=c(0,0.1,0.2,0.3,0.4,0.5,0.6))
 
