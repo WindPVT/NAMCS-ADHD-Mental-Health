@@ -4,3 +4,5 @@
  - Evaluate factors associated with new and prevalent adult CNS stimulant prescriptions.
  - Evaluate factors assocated with potentially inappropriate adult CNS stimulant prescriptions.
  - Evaluate trends in prescribing over time.
+
+Pavan Thakkar; Angelique Boutzoukas, MD, MPH; Scott N. Compton, PhD; Ohviya Sivashankar; Kanecia Zimmerman, MD, PhD; Daniel Benjamin, MD, PhD; and M. Alan Brookhart, PhD
