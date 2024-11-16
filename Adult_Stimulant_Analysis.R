@@ -8,6 +8,7 @@ library(ggplot2)
 library(survey)
 library(ggsurvey)
 library(broom)
+library(tableone)
 
 # Prevent scientific notation
 options(scipen=999)
@@ -16,13 +17,13 @@ options(scipen=999)
 
 
 #### READ CSV FILES ####
-raw_data_2019 <- read.csv("Raw_Data/namcs2019.csv")
-raw_data_2018 <- read.csv("Raw_Data/namcs2018.csv")
-raw_data_2016 <- read.csv("Raw_Data/namcs2016.csv")
-raw_data_2015 <- read.csv("Raw_Data/namcs2015.csv")
-raw_data_2014 <- read.csv("Raw_Data/namcs2014.csv")
-raw_data_2013 <- read.csv("Raw_Data/namcs2013.csv")
-raw_data_2012 <- read.csv("Raw_Data/namcs2012.csv")
+raw_data_2019 <- read.csv("NAMCS-ADHD-Mental-Health/Raw_Data/namcs2019.csv")
+raw_data_2018 <- read.csv("NAMCS-ADHD-Mental-Health/Raw_Data/namcs2018.csv")
+raw_data_2016 <- read.csv("NAMCS-ADHD-Mental-Health/Raw_Data/namcs2016.csv")
+raw_data_2015 <- read.csv("NAMCS-ADHD-Mental-Health/Raw_Data/namcs2015.csv")
+raw_data_2014 <- read.csv("NAMCS-ADHD-Mental-Health/Raw_Data/namcs2014.csv")
+raw_data_2013 <- read.csv("NAMCS-ADHD-Mental-Health/Raw_Data/namcs2013.csv")
+raw_data_2012 <- read.csv("NAMCS-ADHD-Mental-Health/Raw_Data/namcs2012.csv")
 
 
 
@@ -180,6 +181,8 @@ data_2012 <- raw_data_2012 %>%
   droplevels() 
 
 
+
+
 #### MERGE AND REFORMAT THE DATASET: RENAME, GROUP, AND ADD VARIABLES ####
 
 ### Merge each year's dataset ###
@@ -266,6 +269,8 @@ data_combined <- data_combined %>%
                                   AGE>=18 & AGE<30 ~"18-30",
                                   AGE>=30 & AGE<65 ~"30-65",
                                   AGE>=65 ~ ">65")) %>% 
+  mutate(AGE_RECODE_4 = case_when(AGE<=45 ~"<=45",
+                                  AGE>45 ~">45")) %>% 
   
   
   # Create grouped categorical variables and convert the numbers to the corresponding text
@@ -327,8 +332,8 @@ data_combined <- data_combined %>%
   mutate(CAD_RECODE = case_when(CAD==1 | IHD==1 ~1,
                                 .default = 0)) %>% 
   
-  mutate(PREGNANT_RECODE = case_when(PREGNANT==1 ~1,
-                                .default = 0)) %>% 
+  mutate(PREGNANT_RECODE = case_when(PREGNANT==2 | PREGNANT==-7 ~0,
+                                .default = 1)) %>% 
   
   mutate(ADHD = case_when(DIAG1 %in% ADHD_ICD_codes | DIAG2 %in% ADHD_ICD_codes | DIAG3 %in% ADHD_ICD_codes | DIAG4 %in% ADHD_ICD_codes | DIAG5 %in% ADHD_ICD_codes ~1,
                           .default = 0)) %>% 
@@ -350,6 +355,8 @@ data_combined <- data_combined %>%
   
   mutate(PA_ALONE = case_when(PHYSASST==1 & PHYS==0 ~1,
                               .default = 0)) %>% 
+  mutate(APP_ALONE = case_when(((PHYSASST==1 & PHYS==0) | (NPNMW_RECODE==1 & PHYS==0)) ~1,
+                         .default = 0)) %>% 
   
   
   # Create a binary (0/1) variable for the occurrence of ANY contraindicated condition or medication
@@ -374,6 +381,7 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
   all_age_weighted <- subset(weighting_design_namcs,AGE>=18)
   all_age_any_stim <- subset(all_age_weighted,ANY_STIM==1)
   all_age_new_stim <- subset(all_age_weighted,NEW_STIM==1)
+  over65_weighted <- subset(weighting_design_namcs,AGE>=65)
 
   
   
@@ -384,46 +392,85 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
   
       data_combined %>% 
         filter(AGE>=18) %>% 
+        filter(YEAR==2013) %>% 
+        filter(ANY_STIM == 1) %>% 
+        summarise(n=n())
+  
+      data_combined %>% 
+        filter(AGE>=18) %>% 
+        group_by(YEAR) %>% 
+        summarise(n=n())
+      
+  
+      data_combined %>% 
+        filter(AGE>=18) %>% 
+        filter(APP_ALONE == 1) %>% 
+        filter(ANY_STIM==1) %>% 
         summarise(n=n())
   
   svytable(~ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim)
   
+  svytable(~PREGNANT+SEX+AGE_RECODE_3, design=all_age_weighted)
+  svytable(~APP_ALONE, design=all_age_weighted)
+  svytable(~PHYSASST+PHYS, design=all_age_weighted)
+
+  svytable(~YEAR, design=all_age_new_stim)
+  svyttest(YEAR~ANY_CONTRAINDICATED_CONDITION,all_age_new_stim)
+  
+  
+### Descriptive table for 65+ ###  
+  table_one_65 <- svyCreateTableOne(vars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                             "AGE_RECODE_3","SEX","RACERETH",
+                                             "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
+                                             "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                             "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                             "NON_STIM"),
+                                    strata = "ANY_STIM",
+                                    data = over65_weighted,
+                                    factorVars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                                   "AGE_RECODE_3","SEX","RACERETH",
+                                                   "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
+                                                   "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                                   "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                                   "NON_STIM"))
+  write.csv(print(table_one_65, format="f", noSpaces=TRUE, quote=FALSE, test=FALSE, showAllLevels=FALSE),"table_one_65.csv")
+  
 
 ### Descriptive table for prevalent prescriptions ###
   
-      table_one_any <- svyCreateTableOne(vars = c("YEAR","MSA","PAYTYPER_RECODE",
-                                        "AGE_RECODE_3","SEX","RACERETH",
-                                        "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
-                                        "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
-                                        "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
-                                        "NON_STIM"),
-                               strata = "ANY_STIM", 
-                               data = all_age_weighted, 
-                               factorVars = c("YEAR","MSA","PAYTYPER_RECODE",
-                                              "AGE_RECODE_3","SEX","RACERETH",
-                                              "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
-                                              "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+       table_one_any <- svyCreateTableOne(vars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                         "AGE_RECODE_3","SEX","RACERETH",
+                                         "PRIMCARE_RECODE","MDDO_RECODE",
+                                         "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                         "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                         "NON_STIM"),
+                                strata = "ANY_STIM", 
+                                data = all_age_weighted, 
+                                factorVars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                               "AGE_RECODE_3","SEX","RACERETH",
+                                               "PRIMCARE_RECODE","MDDO_RECODE",
+                                               "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
                                               "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
                                               "NON_STIM"))
-      write.csv(print(table_one_any, format="f", noSpaces=TRUE, quote=FALSE, test=FALSE, showAllLevels=FALSE),"table_one_any.csv")
-
-### Descriptive table for new prescriptions ###
-    
-      table_one_new <- svyCreateTableOne(vars = c("YEAR","MSA","PAYTYPER_RECODE",
-                                                  "AGE_RECODE_3","SEX","RACERETH",
-                                                  "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
-                                                  "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
-                                                  "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
-                                                  "NON_STIM"),
-                                         strata = "NEW_STIM", 
-                                         data = all_age_weighted, 
-                                         factorVars = c("YEAR","MSA","PAYTYPER_RECODE",
-                                                        "AGE_RECODE_3","SEX","RACERETH",
-                                                        "PRIMCARE_RECODE","MDDO_RECODE","PHYSASST_RECODE","NPNMW_RECODE","RNLPN_RECODE","MHP_RECODE","OTHPROV_RECODE",
-                                                        "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
-                                                        "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
-                                                        "NON_STIM"))
-      write.csv(print(table_one_new, format="f", noSpaces=TRUE, quote=FALSE, showAllLevels=FALSE),"table_one_new.csv")
+       write.csv(print(table_one_any, format="f", noSpaces=TRUE, quote=FALSE, test=FALSE, showAllLevels=FALSE),"table_one_any.csv")
+ 
+# ### Descriptive table for new prescriptions ###
+     
+       table_one_new <- svyCreateTableOne(vars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                                   "AGE_RECODE_3","SEX","RACERETH",
+                                                   "PRIMCARE_RECODE","MDDO_RECODE",
+                                                   "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                                   "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                                   "NON_STIM"),
+                                          strata = "NEW_STIM", 
+                                          data = all_age_weighted, 
+                                          factorVars = c("YEAR","MSA","PAYTYPER_RECODE",
+                                                         "AGE_RECODE_3","SEX","RACERETH",
+                                                         "PRIMCARE_RECODE","MDDO_RECODE",
+                                                         "ADHD","NARCOLEPSY","BINGE_EATING","OBESITY",
+                                                         "ANY_CONTRAINDICATED_CONDITION", "NUM_CONTRAINDICATIONS", "CAD_RECODE","CEBVD","HTN","SUBSTAB","PREGNANT","TOURETTE","GLAUCOMA","HYPERTHYROIDISM","MAOI",
+                                                         "NON_STIM"))
+       write.csv(print(table_one_new, format="f", noSpaces=TRUE, quote=FALSE, showAllLevels=FALSE),"table_one_new.csv")
 
 
       
@@ -443,11 +490,6 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                             # HCP characteristics
                             svytable(~PRIMCARE_RECODE+ANY_STIM,  design=all_age_weighted),
                             svytable(~MDDO_RECODE+ANY_STIM,  design=all_age_weighted),
-                            svytable(~PHYSASST_RECODE+ANY_STIM,  design=all_age_weighted),
-                            svytable(~NPNMW_RECODE+ANY_STIM,  design=all_age_weighted),
-                            svytable(~RNLPN_RECODE+ANY_STIM, design=all_age_weighted),
-                            svytable(~MHP_RECODE+ANY_STIM, design=all_age_weighted),
-                            svytable(~OTHPROV_RECODE+ANY_STIM,  design=all_age_weighted),
                             # Contraindications
                             svytable(~CAD_RECODE+ANY_STIM,  design=all_age_weighted),
                             svytable(~CEBVD+ANY_STIM,  design=all_age_weighted),
@@ -467,12 +509,7 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                        SEX+
                        RACERETH+
                        relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
-                       MDDO_RECODE+
-                       PHYSASST_RECODE+
-                       NPNMW_RECODE+
-                       RNLPN_RECODE+
-                       relevel(factor(MHP_RECODE), ref = "No MHP")+
-                       OTHPROV_RECODE+
+                       relevel(factor(MDDO_RECODE), ref = "DO")+
                        CAD_RECODE+
                        CEBVD+
                        HTN+
@@ -482,9 +519,9 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                        HYPERTHYROIDISM+
                        MAOI,
                      design = all_age_weighted,
-                     family=quasibinomial()),
+                     family=quasipoisson(link=log)),
            exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
-        "regression-any_stim.csv")
+        "regression-any_stim-2.csv")
 
 ## New prescription ##
 
@@ -499,11 +536,6 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                       # HCP characteristics
                       svytable(~PRIMCARE_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
                       svytable(~MDDO_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
-                      svytable(~PHYSASST_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
-                      svytable(~NPNMW_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
-                      svytable(~RNLPN_RECODE+NEW_STIM_BINARY, design=all_age_weighted),
-                      svytable(~MHP_RECODE+NEW_STIM_BINARY, design=all_age_weighted),
-                      svytable(~OTHPROV_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
                       # Contraindications
                       svytable(~CAD_RECODE+NEW_STIM_BINARY,  design=all_age_weighted),
                       svytable(~CEBVD+NEW_STIM_BINARY,  design=all_age_weighted),
@@ -524,11 +556,6 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                       RACERETH+
                       relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
                       MDDO_RECODE+
-                      PHYSASST_RECODE+
-                      NPNMW_RECODE+
-                      RNLPN_RECODE+
-                      relevel(factor(MHP_RECODE), ref = "No MHP")+
-                      OTHPROV_RECODE+
                       CAD_RECODE+
                       CEBVD+
                       HTN+
@@ -538,13 +565,13 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                       HYPERTHYROIDISM,
                       #MAOI
                     design = all_age_weighted,
-                    family=quasibinomial()), 
+                    family=quasipoisson(link=log)),
             exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
         "regression-new_stim.csv")
       
 
 
-#### SENSITIVITY ANALYSIS WITH SUBSTAB ####
+#### SECONDARY ANALYSIS WITH SUBSTAB ####
       
 ## Prevalent prescription ##
       
@@ -557,23 +584,18 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                               RACERETH+
                               relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
                               MDDO_RECODE+
-                              PHYSASST_RECODE+
-                              NPNMW_RECODE+
-                              RNLPN_RECODE+
-                              relevel(factor(MHP_RECODE), ref = "No MHP")+
-                              OTHPROV_RECODE+
                               CAD_RECODE+
                               CEBVD+
                               HTN+
-                              #SUBSTAB+
+                              SUBSTAB+
                               PREGNANT_RECODE+
                               GLAUCOMA+
                               HYPERTHYROIDISM+
                               MAOI,
                             design = all_age_weighted,
-                            family=quasibinomial()),
+                            family=quasipoisson(link=log)),
                      exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
-                "regression-any_stim.csv")
+                "SECONDARY-regression-any_stim.csv")
       
 ## New prescription ##
       
@@ -586,23 +608,18 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                               RACERETH+
                               relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
                               MDDO_RECODE+
-                              PHYSASST_RECODE+
-                              NPNMW_RECODE+
-                              RNLPN_RECODE+
-                              relevel(factor(MHP_RECODE), ref = "No MHP")+
-                              OTHPROV_RECODE+
                               CAD_RECODE+
                               CEBVD+
                               HTN+
-                              #SUBSTAB+
+                              SUBSTAB+
                               PREGNANT_RECODE+
                               #GLAUCOMA+
                               HYPERTHYROIDISM,
-                            #MAOI
+                              #MAOI
                             design = all_age_weighted,
-                            family=quasibinomial()), 
+                            family=quasipoisson(link=log)), 
                      exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95), 
-                "regression-new_stim.csv")
+                "SECONDARY-regression-new_stim.csv")
       
       
       
@@ -621,15 +638,10 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                             svytable(~RACERETH+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
                              # HCP characteristics
                             svytable(~PRIMCARE_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
-                            svytable(~MDDO_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
-                            svytable(~PHYSASST_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
-                            svytable(~NPNMW_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim),
-                            svytable(~RNLPN_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
-                            svytable(~MHP_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_any_stim),
-                            svytable(~OTHPROV_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim))
-      write.csv(inap_rx_any,"inap_rx_any.csv")
+                            svytable(~MDDO_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_any_stim))
+      # write.csv(inap_rx_any,"inap_rx_any.csv")
       
-      write.csv(tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
+      a173 <- tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
                     ~factor(YEAR)+
                       MSA+
                       relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
@@ -637,17 +649,12 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                       SEX+
                       RACERETH+
                       relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
-                      MDDO_RECODE+
-                      PHYSASST_RECODE+
-                      NPNMW_RECODE+
-                      RNLPN_RECODE+
-                      relevel(factor(MHP_RECODE), ref = "No MHP")+
-                      OTHPROV_RECODE,
+                      MDDO_RECODE,
                     design = all_age_any_stim,
-                    family=quasibinomial()), 
-             exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
-        "regression-inapp_rx_any.csv")
+                    family=quasipoisson(link=log)), 
+             exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95)
       
+      write.csv(a173, "regression_any_inap-2.csv")
 
 ## New inappropriate prescription ##
 
@@ -661,15 +668,10 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                             svytable(~RACERETH+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
                             # HCP characteristics
                             svytable(~PRIMCARE_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
-                            svytable(~MDDO_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
-                            svytable(~PHYSASST_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
-                            svytable(~NPNMW_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim),
-                            svytable(~RNLPN_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
-                            svytable(~MHP_RECODE+ANY_CONTRAINDICATED_CONDITION, design=all_age_new_stim),
-                            svytable(~OTHPROV_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim))
+                            svytable(~MDDO_RECODE+ANY_CONTRAINDICATED_CONDITION,  design=all_age_new_stim))
       write.csv(inap_rx_new,"inap_rx_new.csv")
 
-      write.csv(tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
+      a174 <- tidy(svyglm(ANY_CONTRAINDICATED_CONDITION 
                     ~factor(YEAR)+
                       MSA+
                       relevel(factor(PAYTYPER_RECODE), ref = "Private Insurance")+
@@ -677,16 +679,12 @@ weighting_design_namcs <- svydesign(id=~CPSUM, strata=~CSTRATM, weight=~PATWT,da
                       SEX+
                       RACERETH+
                       relevel(factor(PRIMCARE_RECODE), ref = "Specialist")+
-                      MDDO_RECODE+
-                      PHYSASST_RECODE+
-                      NPNMW_RECODE+
-                      RNLPN_RECODE+
-                      relevel(factor(MHP_RECODE), ref = "No MHP")+
-                      OTHPROV_RECODE,
+                      MDDO_RECODE,
                     design = all_age_new_stim,
-                    family=quasibinomial()), 
-              exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95),
-      "regression-inapp_rx_new.csv")
+                    family=quasipoisson(link=log)), 
+              exponentiate = TRUE, conf.int = TRUE, conf.level = 0.95)
+      
+      write.csv(a174, "regression_new_inap-2.csv")
 
 
       
@@ -718,18 +716,16 @@ ggplot(new_stim_by_year, aes(x=YEAR, y=STIMULANT, color = AGE_RECODE_3))+
 
 
 ### Graph of the proportion of total visits with an inappropriate stimulant prescription, by year ###
-inapp_stim_by_year <- svyby(~ANY_CONTRAINDICATED_CONDITION, ~YEAR, all_age_new_stim, na=TRUE, svymean) 
+inapp_stim_by_year <- svyby(~ANY_CONTRAINDICATED_CONDITION, ~YEAR, all_age_any_stim, na=TRUE, svymean) 
 inapp_stim_by_year <- cbind(inapp_stim_by_year, confint(inapp_stim_by_year))
 colnames(inapp_stim_by_year) <- c("YEAR", "STIMULANT", "SE", "LOWER_CI", "UPPER_CI")
 
-ggplot(inapp_stim_by_year, aes(x=YEAR, y=STIMULANT))+
-  geom_line()+
-  geom_point()+
-  geom_ribbon(aes(ymin=LOWER_CI,ymax=UPPER_CI), alpha=0.2)+
-  labs(y = "Proportion of Stimulant Prescriptions that are Potentially Inappropriate", x = "Year")+
-  theme(panel.background = element_rect(fill = 'white'))+
-  theme(axis.line.x.bottom=element_line(color="black"))+
-  theme(axis.line.y.left=element_line(color="black"))+
-  scale_x_continuous(breaks=c(2012,2013,2014,2015,2016,2017,2018,2019))+
-  scale_y_continuous(breaks=c(0,0.1,0.2,0.3,0.4,0.5,0.6))
+write.csv(inapp_stim_by_year,"fig1.csv")
 
+ggplot(inapp_stim_by_year, aes(x=YEAR, y=STIMULANT, group=YEAR))+
+  geom_boxplot()+
+  scale_y_continuous(labels = scales::percent)
+  
+
+## REV2 FINAL 11.16.2024
+## /s/Pavan V. Thakkar
