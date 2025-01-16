@@ -7,5 +7,7 @@
 
 Data Source: CDC National Ambulatory Medical Care Survey (NAMCS)
 
-Pavan Thakkar; Angelique Boutzoukas, MD, MPH; Scott N. Compton, PhD; Ohviya Sivashankar; Kanecia Zimmerman, MD, PhD; Daniel Benjamin, MD, PhD; and M. Alan Brookhart, PhD
+Thakkar PV, Boutzoukas AE, Compton SN, Sivashankar O, Zimmerman KO, Benjamin DK Jr, Brookhart MA. Predictors of Potentially Inappropriate Stimulant Prescribing Among Adults. Pharmacoepidemiol Drug Saf. 2025 Jan;34(1):e70079. doi: 10.1002/pds.70079. PMID: 39800551; PMCID: PMC11731891.
+
+
 Duke Clinical Research Institute and Department of Population Health Sciences
